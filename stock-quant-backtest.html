@@ -49,6 +49,8 @@ header h1 span{color:var(--acc2)}
 @media (max-width:1100px){.wrap{grid-template-columns:1fr}}
 .col{display:flex;flex-direction:column;gap:12px;min-width:0}
 .card{background:var(--bg2);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+/* 检索卡片需要让下拉候选溢出显示，不能裁剪 */
+.card.overflowable{overflow:visible}
 .card>h2{margin:0;font-size:12.5px;font-weight:650;padding:9px 12px;background:#121821;border-bottom:1px solid var(--line);
   display:flex;align-items:center;gap:8px}
 .card>h2 .num{width:18px;height:18px;border-radius:5px;background:var(--acc);color:#fff;font-size:11px;
@@ -172,7 +174,7 @@ ul.tips li{margin:2px 0}
       <div class="sep"></div>
       <div class="grid2">
         <label class="f">起始日期
-          <input type="date" id="cfgBeg" value="2015-01-01" />
+          <input type="date" id="cfgBeg" value="2015-01-01" min="1990-01-01" max="2099-12-31" />
         </label>
         <label class="f">复权方式
           <select id="cfgFqt">
@@ -229,7 +231,7 @@ ul.tips li{margin:2px 0}
 <!-- ============ 右栏 ============ -->
 <div class="col">
   <!-- 搜索 + K线 -->
-  <div class="card">
+  <div class="card overflowable">
     <h2><span class="num">2</span>股票检索<span class="sub">支持代码 / 中文名 / 拼音首字母缩写（如 GZMT、pfyx、600519），模糊匹配</span></h2>
     <div class="body">
       <div class="row">
@@ -326,8 +328,8 @@ ul.tips li{margin:2px 0}
     <h2><span class="num">5</span>回测区间与执行</h2>
     <div class="body">
       <div class="row" style="margin-bottom:8px">
-        <label class="f">开始日期<input type="date" id="btBeg" /></label>
-        <label class="f">结束日期<input type="date" id="btEnd" /></label>
+        <label class="f">开始日期<input type="date" id="btBeg" min="1990-01-01" max="2099-12-31" /></label>
+        <label class="f">结束日期<input type="date" id="btEnd" min="1990-01-01" max="2099-12-31" /></label>
         <div style="display:flex;gap:5px;flex-wrap:wrap;align-self:flex-end">
           <span class="pill" data-range="1y">近1年</span>
           <span class="pill" data-range="2y">近2年</span>
@@ -448,6 +450,17 @@ const fmtVol = v => v == null ? '—' : v >= 1e8 ? (v / 1e8).toFixed(2) + '亿�
 const d2i = s => { const t = String(s).replace(/[-/]/g, ''); return parseInt(t.slice(0, 8), 10); };
 const i2d = n => { const s = String(n); return s.slice(0, 4) + '-' + s.slice(4, 6) + '-' + s.slice(6, 8); };
 const todayI = () => { const d = new Date(); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
+/* 读取 date 输入框：非法/越界（例如手工敲成 12018 年）时回退到 fallback 并把框内值纠正回来 */
+function readDate(sel, fallback) {
+  const el = typeof sel === 'string' ? $(sel) : sel;
+  const v = el ? el.value : '';
+  let i = /^\d{4}-\d{2}-\d{2}$/.test(v) ? d2i(v) : NaN;
+  if (!(i >= 19900101 && i <= 20991231)) {
+    i = fallback;
+    if (el) el.value = i2d(i);
+  }
+  return i;
+}
 const shiftMonths = (i, m) => { const d = new Date(i2d(i)); d.setMonth(d.getMonth() + m); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); };
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
@@ -524,17 +537,23 @@ const Pinyin = (() => {
     return { cells, abbr: cells.map(x => x[0] || '·').join('') };
   }
   // 在 cells 中做“连续子串”匹配（每位允许多候选，空候选为通配）
-  function match(cells, q) {
-    if (!q) return -1;
+  // 返回 {pos, wild}：pos 为命中起点（-1 未命中），wild 为命中区间里靠通配才匹配上的字数
+  function matchDetail(cells, q) {
+    if (!q) return { pos: -1, wild: 0 };
     const n = cells.length, m = q.length;
     for (let s = 0; s + m <= n; s++) {
-      let ok = true;
-      for (let k = 0; k < m; k++) { const cell = cells[s + k]; if (cell && !cell.includes(q[k])) { ok = false; break; } }
-      if (ok) return s;
+      let ok = true, wild = 0;
+      for (let k = 0; k < m; k++) {
+        const cell = cells[s + k];
+        if (!cell) { wild++; continue; }
+        if (!cell.includes(q[k])) { ok = false; break; }
+      }
+      if (ok) return { pos: s, wild };
     }
-    return -1;
+    return { pos: -1, wild: 0 };
   }
-  return { letters, index, match, build };
+  const match = (cells, q) => matchDetail(cells, q).pos;
+  return { letters, index, match, matchDetail, build };
 })();
 
 /* ------------------------------- DB ------------------------------- */
@@ -779,8 +798,10 @@ const Downloader = (() => {
   }
   function cfg() {
     Source.setPrefer($('#cfgSrc').value);
+    const beg = readDate('#cfgBeg', 20150101);
+    if (d2i($('#cfgBeg').value) !== beg) log(`起始日期不是合法日期，已重置为 ${i2d(beg)}`, 'w');
     return {
-      beg: d2i($('#cfgBeg').value || '2015-01-01'),
+      beg,
       fqt: +$('#cfgFqt').value,
       scope: $('#cfgScope').value,
       limit: +$('#cfgLimit').value,
@@ -1350,9 +1371,11 @@ const Search = (() => {
       }
       if (score < 0 && it.name.includes(q)) score = it.name.startsWith(q) ? 880 : 760;
       if (score < 0 && /^[A-Za-z]/.test(q)) {
-        const p = Pinyin.match(it.cells, Q);
-        if (p === 0) score = 860 - Q.length;
-        else if (p > 0) score = 640 - p;
+        // 生僻字的首字母无法判定，按通配处理；这类命中要降权，避免挤掉真正的缩写命中
+        const { pos, wild } = Pinyin.matchDetail(it.cells, Q);
+        const pen = wild * 150;                       // 靠通配命中的一律排到真正命中之后
+        if (pos === 0) score = Math.max(20, 860 - Q.length - pen);
+        else if (pos > 0) score = Math.max(20, 640 - pos - pen);
         else if (it.abbr.includes(Q)) score = 600;
       }
       if (score < 0) continue;
@@ -2391,8 +2414,10 @@ const App = (() => {
   }
   function ctxNow() {
     const univ = $('#selUniv').value;
+    const dbBeg = window.__dbBeg || 20150101, dbEnd = window.__dbEnd || todayI();
+    const start = readDate('#btBeg', dbBeg), end = readDate('#btEnd', dbEnd);
     return {
-      start: $('#btBeg').value, end: $('#btEnd').value,
+      start: i2d(start), end: i2d(end),
       cash: +$('#cfgCash').value || 1e6, posPct: +$('#cfgPos').value || 100,
       maxPos: +$('#cfgMaxHold').value || 1, fee: +$('#cfgFee').value || 0, slip: +$('#cfgSlip').value || 0,
       univ, univLabel: univ === 'one' ? (cur ? `${cur.name} ${cur.code}` : '未选股') : univ === 'watch' ? `自选 ${watch.length} 只` : '全库'
