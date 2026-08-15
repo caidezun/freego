@@ -117,6 +117,7 @@ tbody tr:hover{background:#1b2a3f}
 .stat .v{font-size:17px;font-weight:650;margin-top:2px}
 
 #codeBox{width:100%;height:280px;background:#080b0f;color:#d5e2ee;font-size:11.5px;line-height:1.55;
+  font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0;
   border:1px solid var(--line2);border-radius:8px;padding:9px;tab-size:4}
 .pill{display:inline-block;background:#1e293b;border:1px solid var(--line2);border-radius:12px;padding:2px 8px;
   font-size:11px;color:var(--fg2);cursor:pointer}
@@ -216,7 +217,7 @@ ul.tips li{margin:2px 0}
         </label>
       </div>
       <ul class="tips">
-        <li>数量上限按市值从大到小排序取前 N 只，选“不限”即真正的全市场（约 5900 只，耗时与占用空间较大）。</li>
+        <li>数量上限按市值从大到小排序取前 N 只，选“不限”即真正的全市场（约 5900 只）。实测参考：8 并发抓 2024 年至今全市场约 4 分钟、325 万条日线、占用约 150MB；起始日期每往前推 3 年，耗时与体积大致翻倍。</li>
         <li>每天存储：开/高/低/收、成交量、成交额、振幅、涨跌幅、换手率；均线（5/10/20/30/60）与流通市值由换手率与收盘价即时推算，避免重复占用空间。</li>
       </ul>
       <div class="sep"></div>
@@ -815,7 +816,7 @@ const Downloader = (() => {
     $('#btnStop').disabled = !on;
   }
   /* 并发池 */
-  async function pool(items, conc, worker, onDone) {
+  async function pool(items, conc, worker) {
     let idx = 0, done = 0;
     const t0 = performance.now();
     const runners = Array.from({ length: conc }, async () => {
@@ -832,7 +833,6 @@ const Downloader = (() => {
         }
         done++;
         if (done % 2 === 0 || done === items.length) setProg(done, items.length, t0);
-        onDone && onDone(done, items.length);
       }
     });
     await Promise.all(runners);
@@ -1415,9 +1415,7 @@ const Search = (() => {
   return {
     build, query, render, move,
     get list() { return cur; }, get sel() { return sel; }, set sel(v) { sel = v; },
-    hide: () => $('#sugList').classList.remove('show'),
-    size: () => items.length,
-    find: code => items.find(i => i.code === code)
+    hide: () => $('#sugList').classList.remove('show')
   };
 })();
 
@@ -1599,7 +1597,12 @@ const Codegen = (() => {
       case 'streak': return `streak(S["close"], i, ${c.n}, ${c.dir === 'up' ? 'True' : 'False'})`;
       case 'volSpike': return `ok(S["vma${c.n}"][i]) and S["volume"][i] > S["vma${c.n}"][i] * ${c.mult}`;
       case 'volShrink': return `ok(S["vma${c.n}"][i]) and S["volume"][i] < S["vma${c.n}"][i] * ${c.mult}`;
-      case 'cmp': return `ok(${operand(c.a)}) and ok(${operand(c.b)}) and ${operand(c.a)} ${c.op} ${operand(c.b)}`;
+      case 'cmp': {
+        const A = operand(c.a), B = operand(c.b), g = [];
+        if (c.a.const === undefined) g.push(`ok(${A})`);      // 常量无需 NaN 保护
+        if (c.b.const === undefined) g.push(`ok(${B})`);
+        return [...g, `${A} ${c.op} ${B}`].join(' and ');
+      }
       default: return 'False';
     }
   }
