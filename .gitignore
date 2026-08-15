@@ -1,0 +1,12 @@
+# Build output
+/bin/
+freego
+
+# Go test / coverage artifacts
+*.out
+*.test
+
+# Editor / OS noise
+.DS_Store
+.idea/
+.vscode/

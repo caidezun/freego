@@ -1,0 +1,10 @@
+{
+  "name": "freego",
+  "install": "go mod download && go build ./...",
+  "terminals": [
+    {
+      "name": "server",
+      "command": "go run ."
+    }
+  ]
+}
