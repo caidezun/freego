@@ -22,7 +22,7 @@
   },
   "warns": [],
   "py_file": "strategies/19_BIAS+WR共振抄底.py",
-  "py_lines": 323,
+  "py_lines": 333,
   "spec": {
     "name": "当BIAS20小于-8并且WR14大于90时买入；当BIAS20大于8或者WR1",
     "text": "当BIAS20小于-8并且WR14大于90时买入；当BIAS20大于8或者WR14小于10或者亏损超过8%时卖出；最长持有20天。",

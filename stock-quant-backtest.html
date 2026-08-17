@@ -1035,12 +1035,23 @@ const Ind = {
     }
     return out;
   },
-  limitUpCount(chg, n) {                 // 近 n 个交易日内的涨停次数（涨幅 ≥ 9.8%）
+  /* 涨停幅度上限：主板 10%、创业板/科创板 20%、北交所 30%。
+     ST 股是 5%，但历史上的 ST 状态无法从当前名称还原（用现在的名字反推会引入未来信息），
+     所以这里不为 ST 单独放宽——5% 的涨停不会被识别为涨停板。 */
+  limitPct(code) {
+    code = String(code || '');
+    if (/^(30|68)/.test(code)) return 19.5;
+    if (/^(43|83|87|92|4|8)/.test(code)) return 29.5;
+    return 9.5;
+  },
+  /* 近 n 个交易日内的涨停收盘次数：涨幅达板块上限且收盘价=最高价 */
+  limitUpCount(chg, high, close, n, pct) {
     const N = chg.length, out = new Float64Array(N).fill(NaN);
+    const hit = i => chg[i] >= pct && close[i] >= high[i] - 1e-6 ? 1 : 0;
     let c = 0;
     for (let i = 0; i < N; i++) {
-      if (chg[i] >= 9.8) c++;
-      if (i >= n && chg[i - n] >= 9.8) c--;
+      c += hit(i);
+      if (i >= n) c -= hit(i - n);
       if (i >= n - 1) out[i] = c;
     }
     return out;
@@ -1833,12 +1844,22 @@ const Codegen = (() => {
     P('        out[i] = 0.0 if md == 0 else (tp[i] - ma[i]) / (0.015 * md)');
     P('    return out');
     P('');
-    P('def limit_up_count(chg, n):');
-    P('    # 近 n 个交易日内的涨停次数（涨幅 >= 9.8%）');
+    P('def limit_pct(code):');
+    P('    # 涨停幅度上限：主板 10%、创业板/科创板 20%、北交所 30%');
+    P('    # ST 股是 5%，但历史 ST 状态无法从当前名称还原，故不单独放宽');
+    P('    code = str(code)');
+    P('    if code[:2] in ("30", "68"): return 19.5');
+    P('    if code[:2] in ("43", "83", "87", "92") or code[0] in ("4", "8"): return 29.5');
+    P('    return 9.5');
+    P('');
+    P('def limit_up_count(chg, high, close, n, pct):');
+    P('    # 近 n 个交易日内的涨停收盘次数：涨幅达板块上限且收盘价=最高价');
+    P('    hit = [1 if (chg[i] >= pct and close[i] >= high[i] - 1e-6) else 0');
+    P('           for i in range(len(chg))]');
     P('    out, c = [NA] * len(chg), 0');
     P('    for i in range(len(chg)):');
-    P('        if chg[i] >= 9.8: c += 1');
-    P('        if i >= n and chg[i - n] >= 9.8: c -= 1');
+    P('        c += hit[i]');
+    P('        if i >= n: c -= hit[i - n]');
     P('        if i >= n - 1: out[i] = float(c)');
     P('    return out');
     P('');
@@ -1881,7 +1902,8 @@ const Codegen = (() => {
     nd.bias.forEach(n => P(`    S["bias${n}"] = bias(c, ${n})`));
     nd.wr.forEach(n => P(`    S["wr${n}"] = wr(h, l, c, ${n})`));
     nd.cci.forEach(n => P(`    S["cci${n}"] = cci(h, l, c, ${n})`));
-    nd.lu.forEach(n => P(`    S["lu${n}"] = limit_up_count(S["chg"], ${n})`));
+    if (nd.lu.length) P('    _lp = limit_pct(S["code"])');
+    nd.lu.forEach(n => P(`    S["lu${n}"] = limit_up_count(S["chg"], h, c, ${n}, _lp)`));
     P('    S["macd_dif"], S["macd_dea"], S["macd_hist"] = macd(c)');
     P('    S["kdj_k"], S["kdj_d"], S["kdj_j"] = kdj(h, l, c)');
     P('    S["boll_mid"], S["boll_up"], S["boll_dn"] = boll(c)');
@@ -2079,7 +2101,8 @@ const JsEngine = (() => {
     for (const n of need.bias) if (!s.X['bias' + n]) s.X['bias' + n] = Ind.bias(s.c, n);
     for (const n of need.wr) if (!s.X['wr' + n]) s.X['wr' + n] = Ind.wr(s.h, s.l, s.c, n);
     for (const n of need.cci) if (!s.X['cci' + n]) s.X['cci' + n] = Ind.cci(s.h, s.l, s.c, n);
-    for (const n of need.lu) if (!s.X['lu' + n]) s.X['lu' + n] = Ind.limitUpCount(s.chg, n);
+    const lp = Ind.limitPct(s.code);
+    for (const n of need.lu) if (!s.X['lu' + n]) s.X['lu' + n] = Ind.limitUpCount(s.chg, s.h, s.c, n, lp);
     return s;
   }
   function val(s, o, i) {

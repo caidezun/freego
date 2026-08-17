@@ -20,7 +20,7 @@
   },
   "warns": [],
   "py_file": "strategies/14_KDJ金叉死叉.py",
-  "py_lines": 317,
+  "py_lines": 327,
   "spec": {
     "name": "KDJ金叉时买入；KDJ死叉时卖出；最长持有30天。",
     "text": "KDJ金叉时买入；KDJ死叉时卖出；最长持有30天。",

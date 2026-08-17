@@ -20,7 +20,7 @@
   },
   "warns": [],
   "py_file": "strategies/11_MACD金叉死叉.py",
-  "py_lines": 317,
+  "py_lines": 327,
   "spec": {
     "name": "MACD金叉时买入；MACD死叉时卖出；最长持有60天。",
     "text": "MACD金叉时买入；MACD死叉时卖出；最长持有60天。",

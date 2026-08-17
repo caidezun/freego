@@ -1,0 +1,67 @@
+{
+  "id": "31",
+  "name": "三连板后回踩10日线",
+  "cat": "打板",
+  "src": "用户指定：连续三个涨停，第四个交易日起以开盘价尝试买入，跌破10日线卖出",
+  "text": "当近3个交易日有3个涨停时买入；当收盘价跌破10日均线时卖出。",
+  "buy_op": "and",
+  "sell_op": "and",
+  "buy": [
+    "近3日涨停次数 == 3"
+  ],
+  "sell": [
+    "收盘价 < MA10"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0,
+    "maxHold": 0,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/31_三连板后回踩10日线.py",
+  "py_lines": 329,
+  "spec": {
+    "name": "当近3个交易日有3个涨停时买入；当收盘价跌破10日均线时卖出。",
+    "text": "当近3个交易日有3个涨停时买入；当收盘价跌破10日均线时卖出。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "limitup",
+            "n": 3
+          },
+          "op": "==",
+          "b": {
+            "const": 3
+          }
+        }
+      ]
+    },
+    "sell": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "close"
+          },
+          "op": "<",
+          "b": {
+            "ind": "ma",
+            "n": 10
+          }
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0,
+      "maxHold": 0,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

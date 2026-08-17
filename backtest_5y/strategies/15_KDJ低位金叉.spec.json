@@ -21,7 +21,7 @@
   },
   "warns": [],
   "py_file": "strategies/15_KDJ低位金叉.py",
-  "py_lines": 319,
+  "py_lines": 329,
   "spec": {
     "name": "当KDJ金叉并且K值小于30时买入；当KDJ死叉或者盈利超过15%或者亏损超过7",
     "text": "当KDJ金叉并且K值小于30时买入；当KDJ死叉或者盈利超过15%或者亏损超过7%时卖出；最长持有30天。",

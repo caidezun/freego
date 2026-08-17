@@ -31,7 +31,7 @@
       },
       "warns": [],
       "py_file": "strategies/01_双均线金叉MA5MA20.py",
-      "py_lines": 317
+      "py_lines": 327
     },
     {
       "id": "02",
@@ -55,7 +55,7 @@
       },
       "warns": [],
       "py_file": "strategies/02_中期双均线MA10MA60.py",
-      "py_lines": 318
+      "py_lines": 328
     },
     {
       "id": "03",
@@ -80,7 +80,7 @@
       },
       "warns": [],
       "py_file": "strategies/03_金叉+放量确认.py",
-      "py_lines": 319
+      "py_lines": 329
     },
     {
       "id": "04",
@@ -108,7 +108,7 @@
       },
       "warns": [],
       "py_file": "strategies/04_多头排列缩量回踩10日线.py",
-      "py_lines": 325
+      "py_lines": 335
     },
     {
       "id": "05",
@@ -133,7 +133,7 @@
       },
       "warns": [],
       "py_file": "strategies/05_站上20日线趋势跟随.py",
-      "py_lines": 319
+      "py_lines": 329
     },
     {
       "id": "06",
@@ -157,7 +157,7 @@
       },
       "warns": [],
       "py_file": "strategies/06_唐奇安通道20日突破.py",
-      "py_lines": 319
+      "py_lines": 329
     },
     {
       "id": "07",
@@ -181,7 +181,7 @@
       },
       "warns": [],
       "py_file": "strategies/07_海龟55日突破.py",
-      "py_lines": 319
+      "py_lines": 329
     },
     {
       "id": "08",
@@ -206,7 +206,7 @@
       },
       "warns": [],
       "py_file": "strategies/08_20日新高+放量突破.py",
-      "py_lines": 320
+      "py_lines": 330
     },
     {
       "id": "09",
@@ -231,7 +231,7 @@
       },
       "warns": [],
       "py_file": "strategies/09_布林上轨突破.py",
-      "py_lines": 319
+      "py_lines": 329
     },
     {
       "id": "10",
@@ -254,7 +254,7 @@
       },
       "warns": [],
       "py_file": "strategies/10_三连阳+10日新高.py",
-      "py_lines": 318
+      "py_lines": 328
     },
     {
       "id": "11",
@@ -278,7 +278,7 @@
       },
       "warns": [],
       "py_file": "strategies/11_MACD金叉死叉.py",
-      "py_lines": 317
+      "py_lines": 327
     },
     {
       "id": "12",
@@ -303,7 +303,7 @@
       },
       "warns": [],
       "py_file": "strategies/12_MACD金叉+均线过滤.py",
-      "py_lines": 319
+      "py_lines": 329
     },
     {
       "id": "13",
@@ -328,7 +328,7 @@
       },
       "warns": [],
       "py_file": "strategies/13_MACD零轴上金叉.py",
-      "py_lines": 319
+      "py_lines": 329
     },
     {
       "id": "14",
@@ -352,7 +352,7 @@
       },
       "warns": [],
       "py_file": "strategies/14_KDJ金叉死叉.py",
-      "py_lines": 317
+      "py_lines": 327
     },
     {
       "id": "15",
@@ -377,7 +377,7 @@
       },
       "warns": [],
       "py_file": "strategies/15_KDJ低位金叉.py",
-      "py_lines": 319
+      "py_lines": 329
     },
     {
       "id": "16",
@@ -401,7 +401,7 @@
       },
       "warns": [],
       "py_file": "strategies/16_KDJ的J值超卖.py",
-      "py_lines": 317
+      "py_lines": 327
     },
     {
       "id": "17",
@@ -425,7 +425,7 @@
       },
       "warns": [],
       "py_file": "strategies/17_RSI6超卖反弹.py",
-      "py_lines": 317
+      "py_lines": 327
     },
     {
       "id": "18",
@@ -450,7 +450,7 @@
       },
       "warns": [],
       "py_file": "strategies/18_RSI14强弱分界突破.py",
-      "py_lines": 319
+      "py_lines": 329
     },
     {
       "id": "19",
@@ -476,7 +476,7 @@
       },
       "warns": [],
       "py_file": "strategies/19_BIAS+WR共振抄底.py",
-      "py_lines": 323
+      "py_lines": 333
     },
     {
       "id": "20",
@@ -500,7 +500,7 @@
       },
       "warns": [],
       "py_file": "strategies/20_布林下轨反弹.py",
-      "py_lines": 317
+      "py_lines": 327
     },
     {
       "id": "21",
@@ -523,7 +523,7 @@
       },
       "warns": [],
       "py_file": "strategies/21_四连阴+RSI超卖.py",
-      "py_lines": 317
+      "py_lines": 327
     },
     {
       "id": "22",
@@ -547,7 +547,7 @@
       },
       "warns": [],
       "py_file": "strategies/22_CCI超卖反弹.py",
-      "py_lines": 318
+      "py_lines": 328
     },
     {
       "id": "23",
@@ -570,7 +570,7 @@
       },
       "warns": [],
       "py_file": "strategies/23_单日暴跌反弹.py",
-      "py_lines": 317
+      "py_lines": 327
     },
     {
       "id": "24",
@@ -594,7 +594,7 @@
       },
       "warns": [],
       "py_file": "strategies/24_量价齐升.py",
-      "py_lines": 319
+      "py_lines": 329
     },
     {
       "id": "25",
@@ -618,7 +618,7 @@
       },
       "warns": [],
       "py_file": "strategies/25_N字涨停战法.py",
-      "py_lines": 321
+      "py_lines": 332
     },
     {
       "id": "26",
@@ -641,7 +641,7 @@
       },
       "warns": [],
       "py_file": "strategies/26_涨停次日跟进.py",
-      "py_lines": 318
+      "py_lines": 329
     },
     {
       "id": "27",
@@ -664,7 +664,7 @@
       },
       "warns": [],
       "py_file": "strategies/27_换手率突增.py",
-      "py_lines": 317
+      "py_lines": 327
     },
     {
       "id": "28",
@@ -690,7 +690,7 @@
       },
       "warns": [],
       "py_file": "strategies/28_低换手率+趋势向上.py",
-      "py_lines": 321
+      "py_lines": 331
     },
     {
       "id": "29",
@@ -715,7 +715,7 @@
       },
       "warns": [],
       "py_file": "strategies/29_缩量回踩20日线.py",
-      "py_lines": 321
+      "py_lines": 331
     },
     {
       "id": "30",
@@ -741,7 +741,7 @@
       },
       "warns": [],
       "py_file": "strategies/30_30日新高+MACD共振.py",
-      "py_lines": 322
+      "py_lines": 332
     }
   ]
 }

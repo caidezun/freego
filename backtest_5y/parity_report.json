@@ -224,19 +224,19 @@
       "id": "25",
       "name": "N字涨停战法",
       "same": true,
-      "py_trades": 459,
-      "np_trades": 459,
-      "py_final": 6442485.13,
-      "np_final": 6442485.13
+      "py_trades": 351,
+      "np_trades": 351,
+      "py_final": 7547634.35,
+      "np_final": 7547634.35
     },
     {
       "id": "26",
       "name": "涨停次日跟进",
       "same": true,
-      "py_trades": 936,
-      "np_trades": 936,
-      "py_final": 5904395.87,
-      "np_final": 5904395.87
+      "py_trades": 673,
+      "np_trades": 673,
+      "py_final": 5998383.18,
+      "np_final": 5998383.18
     },
     {
       "id": "27",

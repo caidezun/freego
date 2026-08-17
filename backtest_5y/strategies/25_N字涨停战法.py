@@ -116,12 +116,22 @@ def cci(high, low, close, n):
         out[i] = 0.0 if md == 0 else (tp[i] - ma[i]) / (0.015 * md)
     return out
 
-def limit_up_count(chg, n):
-    # 近 n 个交易日内的涨停次数（涨幅 >= 9.8%）
+def limit_pct(code):
+    # 涨停幅度上限：主板 10%、创业板/科创板 20%、北交所 30%
+    # ST 股是 5%，但历史 ST 状态无法从当前名称还原，故不单独放宽
+    code = str(code)
+    if code[:2] in ("30", "68"): return 19.5
+    if code[:2] in ("43", "83", "87", "92") or code[0] in ("4", "8"): return 29.5
+    return 9.5
+
+def limit_up_count(chg, high, close, n, pct):
+    # 近 n 个交易日内的涨停收盘次数：涨幅达板块上限且收盘价=最高价
+    hit = [1 if (chg[i] >= pct and close[i] >= high[i] - 1e-6) else 0
+           for i in range(len(chg))]
     out, c = [NA] * len(chg), 0
     for i in range(len(chg)):
-        if chg[i] >= 9.8: c += 1
-        if i >= n and chg[i - n] >= 9.8: c -= 1
+        c += hit[i]
+        if i >= n: c -= hit[i - n]
         if i >= n - 1: out[i] = float(c)
     return out
 
@@ -161,7 +171,8 @@ def prepare(S):
         S["vma%d" % n] = sma(v, n)
     S["rsi6"] = rsi(c, 6)
     S["bias5"] = bias(c, 5)
-    S["lu5"] = limit_up_count(S["chg"], 5)
+    _lp = limit_pct(S["code"])
+    S["lu5"] = limit_up_count(S["chg"], h, c, 5, _lp)
     S["macd_dif"], S["macd_dea"], S["macd_hist"] = macd(c)
     S["kdj_k"], S["kdj_d"], S["kdj_j"] = kdj(h, l, c)
     S["boll_mid"], S["boll_up"], S["boll_dn"] = boll(c)

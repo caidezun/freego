@@ -20,7 +20,7 @@
   },
   "warns": [],
   "py_file": "strategies/22_CCI超卖反弹.py",
-  "py_lines": 318,
+  "py_lines": 328,
   "spec": {
     "name": "当CCI14小于-100时买入；当CCI14大于100或者亏损超过7%时卖出；最",
     "text": "当CCI14小于-100时买入；当CCI14大于100或者亏损超过7%时卖出；最长持有20天。",

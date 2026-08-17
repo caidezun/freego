@@ -21,7 +21,7 @@
   },
   "warns": [],
   "py_file": "strategies/13_MACD零轴上金叉.py",
-  "py_lines": 319,
+  "py_lines": 329,
   "spec": {
     "name": "MACD金叉并且DIF大于0时买入；MACD死叉或者亏损超过7%时卖出；最长持有",
     "text": "MACD金叉并且DIF大于0时买入；MACD死叉或者亏损超过7%时卖出；最长持有40天。",

@@ -21,7 +21,7 @@
   },
   "warns": [],
   "py_file": "strategies/12_MACD金叉+均线过滤.py",
-  "py_lines": 319,
+  "py_lines": 329,
   "spec": {
     "name": "MACD金叉并且收盘价在20日均线之上时买入；MACD死叉或者盈利超过15%或者",
     "text": "MACD金叉并且收盘价在20日均线之上时买入；MACD死叉或者盈利超过15%或者亏损超过7%时卖出；最长持有40天。",

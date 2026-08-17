@@ -237,8 +237,23 @@ def cci(high, low, close, n):
     return out
 
 
-def limit_up_count(chg, n):
-    lu = np.where(np.isnan(chg), 0.0, (chg >= 9.8).astype(np.float64))
+def limit_pct_of(codes):
+    """涨停幅度上限：主板 10%、创业板/科创板 20%、北交所 30%（ST 的 5% 不单独识别）"""
+    out = np.full(len(codes), 9.5)
+    for i, c in enumerate(codes):
+        c = str(c)
+        if c[:2] in ("30", "68"):
+            out[i] = 19.5
+        elif c[:2] in ("43", "83", "87", "92") or c[0] in ("4", "8"):
+            out[i] = 29.5
+    return out
+
+
+def limit_up_count(chg, high, close, n, pct):
+    """近 n 日涨停收盘次数：涨幅达板块上限且收盘价=最高价"""
+    with np.errstate(invalid="ignore"):
+        hit = (chg >= pct[:, None]) & (close >= high - 1e-6)
+    lu = np.where(np.isnan(chg), 0.0, hit.astype(np.float64))
     cs = np.cumsum(lu, axis=1)
     s = cs[:, n - 1:].copy()
     s[:, 1:] -= cs[:, :-n]
@@ -285,7 +300,8 @@ class Indicators:
         elif key.startswith("cci"):
             v = cci(f["high"], f["low"], f["close"], int(key[3:]))
         elif key.startswith("lu"):
-            v = limit_up_count(f["chg"], int(key[2:]))
+            v = limit_up_count(f["chg"], f["high"], f["close"], int(key[2:]),
+                               limit_pct_of(self.p.codes))
         elif key.startswith("hh"):
             v = roll_max(f["high"], int(key[2:]))
         elif key.startswith("ll"):
@@ -539,7 +555,7 @@ def backtest_traced(pnl, ind, spec, start, end, params):
 
 
 # ─────────────────── 信号级等权回测（不受仓位/现金约束） ───────────────────
-def signal_backtest(pnl, ind, spec, start, end, params):
+def signal_backtest(pnl, ind, spec, start, end, params, universe=None):
     """把策略的每一个买入信号都成交，等权、无持仓数量上限，用来衡量策略本身的胜率与单笔收益。
 
     与资金约束版共用同一套信号与退出规则（收盘信号 → 次日开盘成交、T+1、止盈/止损/
@@ -554,6 +570,8 @@ def signal_backtest(pnl, ind, spec, start, end, params):
     too_short = pnl.n_bars < 30
     buy_m[too_short] = False
     sell_m[too_short] = False
+    if universe is not None:                 # 只在指定标的池里开仓（持仓退出规则不变）
+        buy_m[~np.asarray(universe, dtype=bool)] = False
 
     o, c = f["open"], f["close"]
     with np.errstate(invalid="ignore"):
@@ -563,11 +581,14 @@ def signal_backtest(pnl, ind, spec, start, end, params):
     slip_r = params["slip_permil"] / 1000.0
     tp, sl, mb = params["take_profit"], params["stop_loss"], params["max_bars"]
     min_bars = int(params.get("min_bars", 1))
+    # retry_days=0：次日买不到（一字板）就放弃该信号；>0：最多向后顺延这么多个交易日
+    retry_days = int(params.get("retry_days", 0))
 
     T = pnl.T
     day_sum = np.zeros(T)        # 当日所有在持仓位的收益之和
     day_cnt = np.zeros(T)        # 当日在持仓位数
     trades = []
+    missed = 0                   # 因一字板买不到而放弃的信号数
     col_of = pnl.bar             # [N, T]
     for si in range(pnl.N):
         n = int(pnl.n_bars[si])
@@ -591,10 +612,16 @@ def signal_backtest(pnl, ind, spec, start, end, params):
                 j += 1
                 continue
             e = j + 1                                # 次日开盘成交
-            while e < hi and ut[e]:                  # 一字板顺延
+            waited = 0
+            while e < hi and ut[e] and waited < retry_days:   # 一字板顺延
                 e += 1
+                waited += 1
             if e >= hi:
                 break
+            if ut[e]:                                # 仍买不到 → 放弃该信号
+                missed += 1
+                j += 1
+                continue
             price = oo[e] * (1 + slip_r)
             k = e
             reason, xi = None, None
@@ -642,7 +669,7 @@ def signal_backtest(pnl, ind, spec, start, end, params):
         # 循环结束
     daily = np.where(day_cnt > 0, day_sum / np.maximum(day_cnt, 1), 0.0)[i0:i1]
     eq = np.cumprod(1 + daily) * 1.0
-    return {"trades": trades, "daily": daily, "equity_curve": eq,
+    return {"trades": trades, "daily": daily, "equity_curve": eq, "missed": missed,
             "dates": pnl.cal[i0:i1], "avg_positions": float(day_cnt[i0:i1].mean())}
 
 
@@ -682,6 +709,7 @@ def signal_metrics(r):
         "best": float(rets.max()) if len(rets) else 0.0,
         "worst": float(rets.min()) if len(rets) else 0.0,
         "stocks_traded": len({x["code"] for x in t}),
+        "missed_signals": r.get("missed", 0),
     }
 
 
