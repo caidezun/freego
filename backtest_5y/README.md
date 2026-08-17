@@ -5,7 +5,10 @@
 
 结果总表见 [`summary.md`](summary.md)；净值曲线见 `equity_curves.png`。
 
-另有按需追加的专项回测：[`limitup3_report.md`](limitup3_report.md)——三连板后回踩10日线（用户指定）。
+另有按需追加的专项回测：
+
+- [`limitup3_report.md`](limitup3_report.md)——三连板后回踩10日线（用户指定原策略）
+- [`limitup_optimize_report.md`](limitup_optimize_report.md)——连板票多维度优化（市值/换手/成交额/行业/大盘、追板 vs 回调、S4 过拟合警示、S12 大样本改善）
 
 ## 数据
 
