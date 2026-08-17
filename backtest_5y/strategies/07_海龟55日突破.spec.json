@@ -1,0 +1,55 @@
+{
+  "id": "07",
+  "name": "海龟55日突破",
+  "cat": "突破",
+  "src": "海龟交易法则 55 日通道突破",
+  "text": "当收盘价突破55日新高时买入；当收盘价跌破20日新低或者亏损超过10%时卖出；最长持有120天。",
+  "buy_op": "and",
+  "sell_op": "or",
+  "buy": [
+    "创 55 日新高"
+  ],
+  "sell": [
+    "创 20 日新低"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0.1,
+    "maxHold": 120,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/07_海龟55日突破.py",
+  "py_lines": 319,
+  "spec": {
+    "name": "当收盘价突破55日新高时买入；当收盘价跌破20日新低或者亏损超过10%时卖出；最",
+    "text": "当收盘价突破55日新高时买入；当收盘价跌破20日新低或者亏损超过10%时卖出；最长持有120天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "breakout",
+          "n": 55,
+          "dir": "up"
+        }
+      ]
+    },
+    "sell": {
+      "op": "or",
+      "conds": [
+        {
+          "kind": "breakout",
+          "n": 20,
+          "dir": "down"
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0.1,
+      "maxHold": 120,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

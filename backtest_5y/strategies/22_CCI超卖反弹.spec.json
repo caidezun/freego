@@ -1,0 +1,67 @@
+{
+  "id": "22",
+  "name": "CCI超卖反弹",
+  "cat": "均值回归",
+  "src": "CCI 顺势指标 ±100 区间",
+  "text": "当CCI14小于-100时买入；当CCI14大于100或者亏损超过7%时卖出；最长持有20天。",
+  "buy_op": "and",
+  "sell_op": "or",
+  "buy": [
+    "CCI14 < -100"
+  ],
+  "sell": [
+    "CCI14 > 100"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0.07,
+    "maxHold": 20,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/22_CCI超卖反弹.py",
+  "py_lines": 318,
+  "spec": {
+    "name": "当CCI14小于-100时买入；当CCI14大于100或者亏损超过7%时卖出；最",
+    "text": "当CCI14小于-100时买入；当CCI14大于100或者亏损超过7%时卖出；最长持有20天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "cci",
+            "n": 14
+          },
+          "op": "<",
+          "b": {
+            "const": -100
+          }
+        }
+      ]
+    },
+    "sell": {
+      "op": "or",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "cci",
+            "n": 14
+          },
+          "op": ">",
+          "b": {
+            "const": 100
+          }
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0.07,
+      "maxHold": 20,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

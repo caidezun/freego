@@ -1,0 +1,75 @@
+{
+  "id": "03",
+  "name": "金叉+放量确认",
+  "cat": "趋势跟随",
+  "src": "stock_quant 项目 ma_cross 策略 + 成交量过滤",
+  "text": "当5日均线上穿20日均线并且成交量放大1.5倍时买入；当5日均线下穿20日均线或者亏损超过8%时卖出；最长持有60天。",
+  "buy_op": "and",
+  "sell_op": "or",
+  "buy": [
+    "MA5 上穿(金叉) MA20",
+    "成交量 > 5日均量 × 1.5"
+  ],
+  "sell": [
+    "MA5 下穿(死叉) MA20"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0.08,
+    "maxHold": 60,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/03_金叉+放量确认.py",
+  "py_lines": 319,
+  "spec": {
+    "name": "当5日均线上穿20日均线并且成交量放大1.5倍时买入；当5日均线下穿20日均线或",
+    "text": "当5日均线上穿20日均线并且成交量放大1.5倍时买入；当5日均线下穿20日均线或者亏损超过8%时卖出；最长持有60天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cross",
+          "a": {
+            "ind": "ma",
+            "n": 5
+          },
+          "b": {
+            "ind": "ma",
+            "n": 20
+          },
+          "dir": "up"
+        },
+        {
+          "kind": "volSpike",
+          "mult": 1.5,
+          "n": 5
+        }
+      ]
+    },
+    "sell": {
+      "op": "or",
+      "conds": [
+        {
+          "kind": "cross",
+          "a": {
+            "ind": "ma",
+            "n": 5
+          },
+          "b": {
+            "ind": "ma",
+            "n": 20
+          },
+          "dir": "down"
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0.08,
+      "maxHold": 60,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "id": "13",
+  "name": "MACD零轴上金叉",
+  "cat": "MACD",
+  "src": "零轴之上金叉（DIF>0）视为强势",
+  "text": "MACD金叉并且DIF大于0时买入；MACD死叉或者亏损超过7%时卖出；最长持有40天。",
+  "buy": [
+    "MACD 金叉",
+    "MACD-DIF > 0"
+  ],
+  "sell": [
+    "MACD 死叉"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0.07,
+    "maxHold": 40,
+    "minHold": 1
+  },
+  "signal": {
+    "trades": 78499,
+    "wins": 22382,
+    "losses": 56117,
+    "win_rate": 0.2851246512694429,
+    "geo_ret": -0.011521154679329614,
+    "turns_per_year": 27.964504453733298,
+    "annual_single": -0.2767886118728011,
+    "avg_ret": -0.005757624339163556,
+    "median_ret": -0.027723,
+    "avg_win": 0.11030193664551873,
+    "avg_loss": -0.05204743124186967,
+    "profit_factor": 0.8452560408957398,
+    "expectancy": -0.005757624339163556,
+    "total_return": -0.6699600452499586,
+    "annual_return": -0.20016995666256998,
+    "max_drawdown": 0.7314957190790903,
+    "sharpe": -0.970633529161653,
+    "avg_bars": 8.72534681970471,
+    "avg_positions": 630.4128819157721,
+    "best": 5.147112,
+    "worst": -0.39522,
+    "stocks_traded": 5340
+  },
+  "portfolio": {
+    "trades": 2036,
+    "wins": 493,
+    "losses": 1543,
+    "win_rate": 0.24214145383104127,
+    "total_return": -0.901482145,
+    "annual_return": -0.3730874335001717,
+    "max_drawdown": 0.9320817374909917,
+    "sharpe": -0.7399495565181121,
+    "profit_factor": 0.5920642558894398,
+    "avg_ret": -0.023088005893909625,
+    "avg_win": 0.13231274036511156,
+    "avg_loss": -0.07273970252754375,
+    "avg_bars": 8.194990176817289,
+    "best": 2.126271,
+    "worst": -0.34076,
+    "final_equity": 985178.55,
+    "bars_traded": 1211,
+    "total_pnl": -9015262.39
+  },
+  "portfolio_random_pick": {
+    "trades": 2107,
+    "wins": 511,
+    "losses": 1596,
+    "win_rate": 0.2425249169435216,
+    "total_return": -0.89219379,
+    "annual_return": -0.3616029056368637,
+    "max_drawdown": 0.9058982416331945,
+    "sharpe": -1.1244354123404636,
+    "profit_factor": 0.6194427627229148,
+    "avg_ret": -0.01953352776459421,
+    "avg_win": 0.11577408610567515,
+    "avg_loss": -0.06285570238095238,
+    "avg_bars": 8.54437588989084,
+    "best": 1.460506,
+    "worst": -0.277563,
+    "final_equity": 1078062.1,
+    "bars_traded": 1211,
+    "total_pnl": -8922481.2
+  },
+  "exit_reasons": {
+    "信号": 62198,
+    "止损": 16005,
+    "到期": 97,
+    "区间结束平仓": 199
+  },
+  "seconds": 2.1
+}

@@ -1,0 +1,55 @@
+{
+  "id": "06",
+  "name": "唐奇安通道20日突破",
+  "cat": "突破",
+  "src": "唐奇安通道策略（Donchian Channel）",
+  "text": "当收盘价突破20日新高时买入；当收盘价跌破10日新低或者亏损超过8%时卖出；最长持有60天。",
+  "buy_op": "and",
+  "sell_op": "or",
+  "buy": [
+    "创 20 日新高"
+  ],
+  "sell": [
+    "创 10 日新低"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0.08,
+    "maxHold": 60,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/06_唐奇安通道20日突破.py",
+  "py_lines": 319,
+  "spec": {
+    "name": "当收盘价突破20日新高时买入；当收盘价跌破10日新低或者亏损超过8%时卖出；最长",
+    "text": "当收盘价突破20日新高时买入；当收盘价跌破10日新低或者亏损超过8%时卖出；最长持有60天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "breakout",
+          "n": 20,
+          "dir": "up"
+        }
+      ]
+    },
+    "sell": {
+      "op": "or",
+      "conds": [
+        {
+          "kind": "breakout",
+          "n": 10,
+          "dir": "down"
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0.08,
+      "maxHold": 60,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

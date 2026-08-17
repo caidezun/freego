@@ -1,0 +1,53 @@
+{
+  "id": "10",
+  "name": "三连阳+10日新高",
+  "cat": "突破",
+  "src": "连续阳线突破形态",
+  "text": "当连续3天上涨并且收盘价突破10日新高时买入；当盈利超过12%或者亏损超过6%时卖出；最长持有15天。",
+  "buy_op": "and",
+  "sell_op": "and",
+  "buy": [
+    "创 10 日新高",
+    "连续 3 天上涨"
+  ],
+  "sell": [],
+  "risk": {
+    "takeProfit": 0.12,
+    "stopLoss": 0.06,
+    "maxHold": 15,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/10_三连阳+10日新高.py",
+  "py_lines": 318,
+  "spec": {
+    "name": "当连续3天上涨并且收盘价突破10日新高时买入；当盈利超过12%或者亏损超过6%时",
+    "text": "当连续3天上涨并且收盘价突破10日新高时买入；当盈利超过12%或者亏损超过6%时卖出；最长持有15天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "breakout",
+          "n": 10,
+          "dir": "up"
+        },
+        {
+          "kind": "streak",
+          "n": 3,
+          "dir": "up"
+        }
+      ]
+    },
+    "sell": {
+      "op": "and",
+      "conds": []
+    },
+    "risk": {
+      "takeProfit": 0.12,
+      "stopLoss": 0.06,
+      "maxHold": 15,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

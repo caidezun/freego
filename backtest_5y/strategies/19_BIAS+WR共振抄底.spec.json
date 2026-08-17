@@ -1,0 +1,91 @@
+{
+  "id": "19",
+  "name": "BIAS+WR共振抄底",
+  "cat": "均值回归",
+  "src": "短线超跌抄底：BIAS+W&R 双指标共振",
+  "text": "当BIAS20小于-8并且WR14大于90时买入；当BIAS20大于8或者WR14小于10或者亏损超过8%时卖出；最长持有20天。",
+  "buy_op": "and",
+  "sell_op": "or",
+  "buy": [
+    "BIAS20 < -8",
+    "WR14 > 90"
+  ],
+  "sell": [
+    "BIAS20 > 8",
+    "WR14 < 10"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0.08,
+    "maxHold": 20,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/19_BIAS+WR共振抄底.py",
+  "py_lines": 323,
+  "spec": {
+    "name": "当BIAS20小于-8并且WR14大于90时买入；当BIAS20大于8或者WR1",
+    "text": "当BIAS20小于-8并且WR14大于90时买入；当BIAS20大于8或者WR14小于10或者亏损超过8%时卖出；最长持有20天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "bias",
+            "n": 20
+          },
+          "op": "<",
+          "b": {
+            "const": -8
+          }
+        },
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "wr",
+            "n": 14
+          },
+          "op": ">",
+          "b": {
+            "const": 90
+          }
+        }
+      ]
+    },
+    "sell": {
+      "op": "or",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "bias",
+            "n": 20
+          },
+          "op": ">",
+          "b": {
+            "const": 8
+          }
+        },
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "wr",
+            "n": 14
+          },
+          "op": "<",
+          "b": {
+            "const": 10
+          }
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0.08,
+      "maxHold": 20,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

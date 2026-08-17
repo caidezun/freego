@@ -1,0 +1,53 @@
+{
+  "id": "14",
+  "name": "KDJ金叉死叉",
+  "cat": "KDJ",
+  "src": "kdj 随机指标策略（K 上穿 D）",
+  "text": "KDJ金叉时买入；KDJ死叉时卖出；最长持有30天。",
+  "buy_op": "and",
+  "sell_op": "and",
+  "buy": [
+    "KDJ 金叉"
+  ],
+  "sell": [
+    "KDJ 死叉"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0,
+    "maxHold": 30,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/14_KDJ金叉死叉.py",
+  "py_lines": 317,
+  "spec": {
+    "name": "KDJ金叉时买入；KDJ死叉时卖出；最长持有30天。",
+    "text": "KDJ金叉时买入；KDJ死叉时卖出；最长持有30天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "kdjCross",
+          "dir": "up"
+        }
+      ]
+    },
+    "sell": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "kdjCross",
+          "dir": "down"
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0,
+      "maxHold": 30,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

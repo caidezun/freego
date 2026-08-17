@@ -1,0 +1,278 @@
+{
+  "subset_stocks": 136,
+  "start": 20210817,
+  "end": 20260817,
+  "all_same": true,
+  "detail": [
+    {
+      "id": "01",
+      "name": "双均线金叉 MA5/MA20",
+      "same": true,
+      "py_trades": 1209,
+      "np_trades": 1209,
+      "py_final": 5129002.67,
+      "np_final": 5129002.67
+    },
+    {
+      "id": "02",
+      "name": "中期双均线 MA10/MA60",
+      "same": true,
+      "py_trades": 558,
+      "np_trades": 558,
+      "py_final": 9026754.88,
+      "np_final": 9026754.88
+    },
+    {
+      "id": "03",
+      "name": "金叉+放量确认",
+      "same": true,
+      "py_trades": 816,
+      "np_trades": 816,
+      "py_final": 7848289.51,
+      "np_final": 7848289.51
+    },
+    {
+      "id": "04",
+      "name": "多头排列缩量回踩10日线",
+      "same": true,
+      "py_trades": 1425,
+      "np_trades": 1425,
+      "py_final": 7976620.18,
+      "np_final": 7976620.18
+    },
+    {
+      "id": "05",
+      "name": "站上20日线趋势跟随",
+      "same": true,
+      "py_trades": 1966,
+      "np_trades": 1966,
+      "py_final": 2773368.91,
+      "np_final": 2773368.91
+    },
+    {
+      "id": "06",
+      "name": "唐奇安通道20日突破",
+      "same": true,
+      "py_trades": 945,
+      "np_trades": 945,
+      "py_final": 2572029.12,
+      "np_final": 2572029.12
+    },
+    {
+      "id": "07",
+      "name": "海龟55日突破",
+      "same": true,
+      "py_trades": 521,
+      "np_trades": 521,
+      "py_final": 3981841.85,
+      "np_final": 3981841.85
+    },
+    {
+      "id": "08",
+      "name": "20日新高+放量突破",
+      "same": true,
+      "py_trades": 1087,
+      "np_trades": 1087,
+      "py_final": 7172527.39,
+      "np_final": 7172527.39
+    },
+    {
+      "id": "09",
+      "name": "布林上轨突破",
+      "same": true,
+      "py_trades": 1162,
+      "np_trades": 1162,
+      "py_final": 2263984.8,
+      "np_final": 2263984.8
+    },
+    {
+      "id": "10",
+      "name": "三连阳+10日新高",
+      "same": true,
+      "py_trades": 1861,
+      "np_trades": 1861,
+      "py_final": 7447276.45,
+      "np_final": 7447276.45
+    },
+    {
+      "id": "11",
+      "name": "MACD金叉死叉",
+      "same": true,
+      "py_trades": 1453,
+      "np_trades": 1453,
+      "py_final": 6541196.2,
+      "np_final": 6541196.2
+    },
+    {
+      "id": "12",
+      "name": "MACD金叉+均线过滤",
+      "same": true,
+      "py_trades": 2004,
+      "np_trades": 2004,
+      "py_final": 7517214.11,
+      "np_final": 7517214.11
+    },
+    {
+      "id": "13",
+      "name": "MACD零轴上金叉",
+      "same": true,
+      "py_trades": 1292,
+      "np_trades": 1292,
+      "py_final": 4639379.34,
+      "np_final": 4639379.34
+    },
+    {
+      "id": "14",
+      "name": "KDJ金叉死叉",
+      "same": true,
+      "py_trades": 2595,
+      "np_trades": 2595,
+      "py_final": 3879833.07,
+      "np_final": 3879833.07
+    },
+    {
+      "id": "15",
+      "name": "KDJ低位金叉",
+      "same": true,
+      "py_trades": 2075,
+      "np_trades": 2075,
+      "py_final": 10438238.26,
+      "np_final": 10438238.26
+    },
+    {
+      "id": "16",
+      "name": "KDJ的J值超卖",
+      "same": true,
+      "py_trades": 2266,
+      "np_trades": 2266,
+      "py_final": 5808189.77,
+      "np_final": 5808189.77
+    },
+    {
+      "id": "17",
+      "name": "RSI6超卖反弹",
+      "same": true,
+      "py_trades": 1256,
+      "np_trades": 1256,
+      "py_final": 5999435.94,
+      "np_final": 5999435.94
+    },
+    {
+      "id": "18",
+      "name": "RSI14强弱分界突破",
+      "same": true,
+      "py_trades": 1353,
+      "np_trades": 1353,
+      "py_final": 2749848.5,
+      "np_final": 2749848.5
+    },
+    {
+      "id": "19",
+      "name": "BIAS+WR共振抄底",
+      "same": true,
+      "py_trades": 1148,
+      "np_trades": 1148,
+      "py_final": 5119422.39,
+      "np_final": 5119422.39
+    },
+    {
+      "id": "20",
+      "name": "布林下轨反弹",
+      "same": true,
+      "py_trades": 1484,
+      "np_trades": 1484,
+      "py_final": 5916803.58,
+      "np_final": 5916803.58
+    },
+    {
+      "id": "21",
+      "name": "四连阴+RSI超卖",
+      "same": true,
+      "py_trades": 1598,
+      "np_trades": 1598,
+      "py_final": 9351731.78,
+      "np_final": 9351731.78
+    },
+    {
+      "id": "22",
+      "name": "CCI超卖反弹",
+      "same": true,
+      "py_trades": 2140,
+      "np_trades": 2140,
+      "py_final": 8105672.96,
+      "np_final": 8105672.96
+    },
+    {
+      "id": "23",
+      "name": "单日暴跌反弹",
+      "same": true,
+      "py_trades": 530,
+      "np_trades": 530,
+      "py_final": 7911224.74,
+      "np_final": 7911224.74
+    },
+    {
+      "id": "24",
+      "name": "量价齐升",
+      "same": true,
+      "py_trades": 1548,
+      "np_trades": 1548,
+      "py_final": 8907245.4,
+      "np_final": 8907245.4
+    },
+    {
+      "id": "25",
+      "name": "N字涨停战法",
+      "same": true,
+      "py_trades": 459,
+      "np_trades": 459,
+      "py_final": 6442485.13,
+      "np_final": 6442485.13
+    },
+    {
+      "id": "26",
+      "name": "涨停次日跟进",
+      "same": true,
+      "py_trades": 936,
+      "np_trades": 936,
+      "py_final": 5904395.87,
+      "np_final": 5904395.87
+    },
+    {
+      "id": "27",
+      "name": "换手率突增",
+      "same": true,
+      "py_trades": 1154,
+      "np_trades": 1154,
+      "py_final": 5233958.11,
+      "np_final": 5233958.11
+    },
+    {
+      "id": "28",
+      "name": "低换手率+趋势向上",
+      "same": true,
+      "py_trades": 1842,
+      "np_trades": 1842,
+      "py_final": 8917459.66,
+      "np_final": 8917459.66
+    },
+    {
+      "id": "29",
+      "name": "缩量回踩20日线",
+      "same": true,
+      "py_trades": 1468,
+      "np_trades": 1468,
+      "py_final": 7637822.81,
+      "np_final": 7637822.81
+    },
+    {
+      "id": "30",
+      "name": "30日新高+MACD共振",
+      "same": true,
+      "py_trades": 292,
+      "np_trades": 292,
+      "py_final": 8513018.75,
+      "np_final": 8513018.75
+    }
+  ]
+}

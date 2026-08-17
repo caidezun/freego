@@ -1,0 +1,67 @@
+{
+  "id": "17",
+  "name": "RSI6超卖反弹",
+  "cat": "RSI",
+  "src": "rsi 超买超卖策略（默认阈值 30/70）",
+  "text": "当RSI6小于20时买入；当RSI6大于70或者盈利超过12%或者亏损超过6%时卖出；最长持有20天。",
+  "buy_op": "and",
+  "sell_op": "or",
+  "buy": [
+    "RSI6 < 20"
+  ],
+  "sell": [
+    "RSI6 > 70"
+  ],
+  "risk": {
+    "takeProfit": 0.12,
+    "stopLoss": 0.06,
+    "maxHold": 20,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/17_RSI6超卖反弹.py",
+  "py_lines": 317,
+  "spec": {
+    "name": "当RSI6小于20时买入；当RSI6大于70或者盈利超过12%或者亏损超过6%时",
+    "text": "当RSI6小于20时买入；当RSI6大于70或者盈利超过12%或者亏损超过6%时卖出；最长持有20天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "rsi",
+            "n": 6
+          },
+          "op": "<",
+          "b": {
+            "const": 20
+          }
+        }
+      ]
+    },
+    "sell": {
+      "op": "or",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "rsi",
+            "n": 6
+          },
+          "op": ">",
+          "b": {
+            "const": 70
+          }
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0.12,
+      "stopLoss": 0.06,
+      "maxHold": 20,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

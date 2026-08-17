@@ -1,0 +1,63 @@
+{
+  "id": "27",
+  "name": "换手率突增",
+  "cat": "量价",
+  "src": "换手率异动+上涨（资金关注度骤升）",
+  "text": "当换手率大于8%并且涨幅大于5%时买入；当盈利超过10%或者亏损超过6%时卖出；最长持有10天。",
+  "buy_op": "and",
+  "sell_op": "and",
+  "buy": [
+    "换手率(%) > 8",
+    "涨跌幅(%) > 5"
+  ],
+  "sell": [],
+  "risk": {
+    "takeProfit": 0.1,
+    "stopLoss": 0.06,
+    "maxHold": 10,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/27_换手率突增.py",
+  "py_lines": 317,
+  "spec": {
+    "name": "当换手率大于8%并且涨幅大于5%时买入；当盈利超过10%或者亏损超过6%时卖出；",
+    "text": "当换手率大于8%并且涨幅大于5%时买入；当盈利超过10%或者亏损超过6%时卖出；最长持有10天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "turnover"
+          },
+          "op": ">",
+          "b": {
+            "const": 8
+          }
+        },
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "chg"
+          },
+          "op": ">",
+          "b": {
+            "const": 5
+          }
+        }
+      ]
+    },
+    "sell": {
+      "op": "and",
+      "conds": []
+    },
+    "risk": {
+      "takeProfit": 0.1,
+      "stopLoss": 0.06,
+      "maxHold": 10,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

@@ -1,0 +1,747 @@
+{
+  "ctx": {
+    "start": "2021-08-17",
+    "end": "2026-08-17",
+    "cash": 10000000,
+    "posPct": 5,
+    "maxPos": 20,
+    "fee": 0.5,
+    "slip": 0.5
+  },
+  "list": [
+    {
+      "id": "01",
+      "name": "双均线金叉 MA5/MA20",
+      "cat": "趋势跟随",
+      "src": "JoinQuant 量化课堂《双均线策略》",
+      "text": "当5日均线上穿20日均线时买入；当5日均线下穿20日均线时卖出；最长持有60天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "MA5 上穿(金叉) MA20"
+      ],
+      "sell": [
+        "MA5 下穿(死叉) MA20"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "maxHold": 60,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/01_双均线金叉MA5MA20.py",
+      "py_lines": 317
+    },
+    {
+      "id": "02",
+      "name": "中期双均线 MA10/MA60",
+      "cat": "趋势跟随",
+      "src": "JoinQuant / 掘金量化 双均线策略（长周期参数）",
+      "text": "当10日均线上穿60日均线时买入；当10日均线下穿60日均线时卖出；最长持有120天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "MA10 上穿(金叉) MA60"
+      ],
+      "sell": [
+        "MA10 下穿(死叉) MA60"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "maxHold": 120,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/02_中期双均线MA10MA60.py",
+      "py_lines": 318
+    },
+    {
+      "id": "03",
+      "name": "金叉+放量确认",
+      "cat": "趋势跟随",
+      "src": "stock_quant 项目 ma_cross 策略 + 成交量过滤",
+      "text": "当5日均线上穿20日均线并且成交量放大1.5倍时买入；当5日均线下穿20日均线或者亏损超过8%时卖出；最长持有60天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "MA5 上穿(金叉) MA20",
+        "成交量 > 5日均量 × 1.5"
+      ],
+      "sell": [
+        "MA5 下穿(死叉) MA20"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0.08,
+        "maxHold": 60,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/03_金叉+放量确认.py",
+      "py_lines": 319
+    },
+    {
+      "id": "04",
+      "name": "多头排列缩量回踩10日线",
+      "cat": "趋势跟随",
+      "src": "A股短线极简战法：回踩+缩量踩10日线",
+      "text": "当5日均线大于10日均线并且10日均线大于20日均线并且回踩10日均线并且成交量低于5日均量的0.6倍时买入；当收盘价跌破10日均线或者盈利超过15%或者亏损超过5%时卖出；最长持有20天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "MA5 > MA10",
+        "MA10 > MA20",
+        "收盘价 > MA10×0.98",
+        "收盘价 < MA10×1.02",
+        "成交量 < 5日均量 × 0.6"
+      ],
+      "sell": [
+        "收盘价 < MA10"
+      ],
+      "risk": {
+        "takeProfit": 0.15,
+        "stopLoss": 0.05,
+        "maxHold": 20,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/04_多头排列缩量回踩10日线.py",
+      "py_lines": 325
+    },
+    {
+      "id": "05",
+      "name": "站上20日线趋势跟随",
+      "cat": "趋势跟随",
+      "src": "通用趋势跟随（价格在均线之上持有）",
+      "text": "当收盘价在20日均线之上并且5日均线大于20日均线时买入；当收盘价跌破20日均线或者亏损超过7%时卖出；最长持有40天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "MA5 > MA20",
+        "收盘价 > MA20"
+      ],
+      "sell": [
+        "收盘价 < MA20"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0.07,
+        "maxHold": 40,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/05_站上20日线趋势跟随.py",
+      "py_lines": 319
+    },
+    {
+      "id": "06",
+      "name": "唐奇安通道20日突破",
+      "cat": "突破",
+      "src": "唐奇安通道策略（Donchian Channel）",
+      "text": "当收盘价突破20日新高时买入；当收盘价跌破10日新低或者亏损超过8%时卖出；最长持有60天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "创 20 日新高"
+      ],
+      "sell": [
+        "创 10 日新低"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0.08,
+        "maxHold": 60,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/06_唐奇安通道20日突破.py",
+      "py_lines": 319
+    },
+    {
+      "id": "07",
+      "name": "海龟55日突破",
+      "cat": "突破",
+      "src": "海龟交易法则 55 日通道突破",
+      "text": "当收盘价突破55日新高时买入；当收盘价跌破20日新低或者亏损超过10%时卖出；最长持有120天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "创 55 日新高"
+      ],
+      "sell": [
+        "创 20 日新低"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0.1,
+        "maxHold": 120,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/07_海龟55日突破.py",
+      "py_lines": 319
+    },
+    {
+      "id": "08",
+      "name": "20日新高+放量突破",
+      "cat": "突破",
+      "src": "量价配合的新高突破（放量创新高）",
+      "text": "当收盘价突破20日新高并且成交量放大2倍时买入；当收盘价跌破10日均线或者盈利超过25%或者亏损超过8%时卖出；最长持有30天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "创 20 日新高",
+        "成交量 > 5日均量 × 2"
+      ],
+      "sell": [
+        "收盘价 < MA10"
+      ],
+      "risk": {
+        "takeProfit": 0.25,
+        "stopLoss": 0.08,
+        "maxHold": 30,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/08_20日新高+放量突破.py",
+      "py_lines": 320
+    },
+    {
+      "id": "09",
+      "name": "布林上轨突破",
+      "cat": "突破",
+      "src": "bollinger 布林带策略（上轨突破做多）",
+      "text": "当收盘价突破布林上轨并且成交量放大1.5倍时买入；当收盘价跌破布林中轨或者亏损超过8%时卖出；最长持有30天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "成交量 > 5日均量 × 1.5",
+        "收盘价 > BOLL上轨"
+      ],
+      "sell": [
+        "收盘价 < BOLL中轨"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0.08,
+        "maxHold": 30,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/09_布林上轨突破.py",
+      "py_lines": 319
+    },
+    {
+      "id": "10",
+      "name": "三连阳+10日新高",
+      "cat": "突破",
+      "src": "连续阳线突破形态",
+      "text": "当连续3天上涨并且收盘价突破10日新高时买入；当盈利超过12%或者亏损超过6%时卖出；最长持有15天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "创 10 日新高",
+        "连续 3 天上涨"
+      ],
+      "sell": [],
+      "risk": {
+        "takeProfit": 0.12,
+        "stopLoss": 0.06,
+        "maxHold": 15,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/10_三连阳+10日新高.py",
+      "py_lines": 318
+    },
+    {
+      "id": "11",
+      "name": "MACD金叉死叉",
+      "cat": "MACD",
+      "src": "MACD 金死叉策略（DIF 上穿 DEA）",
+      "text": "MACD金叉时买入；MACD死叉时卖出；最长持有60天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "MACD 金叉"
+      ],
+      "sell": [
+        "MACD 死叉"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "maxHold": 60,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/11_MACD金叉死叉.py",
+      "py_lines": 317
+    },
+    {
+      "id": "12",
+      "name": "MACD金叉+均线过滤",
+      "cat": "MACD",
+      "src": "多指标共振：MACD + 20日均线方向",
+      "text": "MACD金叉并且收盘价在20日均线之上时买入；MACD死叉或者盈利超过15%或者亏损超过7%时卖出；最长持有40天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "MACD 金叉",
+        "收盘价 > MA20"
+      ],
+      "sell": [
+        "MACD 死叉"
+      ],
+      "risk": {
+        "takeProfit": 0.15,
+        "stopLoss": 0.07,
+        "maxHold": 40,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/12_MACD金叉+均线过滤.py",
+      "py_lines": 319
+    },
+    {
+      "id": "13",
+      "name": "MACD零轴上金叉",
+      "cat": "MACD",
+      "src": "零轴之上金叉（DIF>0）视为强势",
+      "text": "MACD金叉并且DIF大于0时买入；MACD死叉或者亏损超过7%时卖出；最长持有40天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "MACD 金叉",
+        "MACD-DIF > 0"
+      ],
+      "sell": [
+        "MACD 死叉"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0.07,
+        "maxHold": 40,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/13_MACD零轴上金叉.py",
+      "py_lines": 319
+    },
+    {
+      "id": "14",
+      "name": "KDJ金叉死叉",
+      "cat": "KDJ",
+      "src": "kdj 随机指标策略（K 上穿 D）",
+      "text": "KDJ金叉时买入；KDJ死叉时卖出；最长持有30天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "KDJ 金叉"
+      ],
+      "sell": [
+        "KDJ 死叉"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "maxHold": 30,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/14_KDJ金叉死叉.py",
+      "py_lines": 317
+    },
+    {
+      "id": "15",
+      "name": "KDJ低位金叉",
+      "cat": "KDJ",
+      "src": "KDJ 低位（K<30）金叉",
+      "text": "当KDJ金叉并且K值小于30时买入；当KDJ死叉或者盈利超过15%或者亏损超过7%时卖出；最长持有30天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "KDJ 金叉",
+        "KDJ-K < 30"
+      ],
+      "sell": [
+        "KDJ 死叉"
+      ],
+      "risk": {
+        "takeProfit": 0.15,
+        "stopLoss": 0.07,
+        "maxHold": 30,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/15_KDJ低位金叉.py",
+      "py_lines": 319
+    },
+    {
+      "id": "16",
+      "name": "KDJ的J值超卖",
+      "cat": "KDJ",
+      "src": "J 值为负视为极端超卖",
+      "text": "当KDJ的J值小于0时买入；当J值大于90或者盈利超过10%或者亏损超过6%时卖出；最长持有15天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "KDJ-J < 0"
+      ],
+      "sell": [
+        "KDJ-J > 90"
+      ],
+      "risk": {
+        "takeProfit": 0.1,
+        "stopLoss": 0.06,
+        "maxHold": 15,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/16_KDJ的J值超卖.py",
+      "py_lines": 317
+    },
+    {
+      "id": "17",
+      "name": "RSI6超卖反弹",
+      "cat": "RSI",
+      "src": "rsi 超买超卖策略（默认阈值 30/70）",
+      "text": "当RSI6小于20时买入；当RSI6大于70或者盈利超过12%或者亏损超过6%时卖出；最长持有20天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "RSI6 < 20"
+      ],
+      "sell": [
+        "RSI6 > 70"
+      ],
+      "risk": {
+        "takeProfit": 0.12,
+        "stopLoss": 0.06,
+        "maxHold": 20,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/17_RSI6超卖反弹.py",
+      "py_lines": 317
+    },
+    {
+      "id": "18",
+      "name": "RSI14强弱分界突破",
+      "cat": "RSI",
+      "src": "RSI 中枢 50 上方视为多头",
+      "text": "当RSI14大于55并且收盘价在20日均线之上时买入；当RSI14小于45或者亏损超过7%时卖出；最长持有30天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "RSI14 > 55",
+        "收盘价 > MA20"
+      ],
+      "sell": [
+        "RSI14 < 45"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0.07,
+        "maxHold": 30,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/18_RSI14强弱分界突破.py",
+      "py_lines": 319
+    },
+    {
+      "id": "19",
+      "name": "BIAS+WR共振抄底",
+      "cat": "均值回归",
+      "src": "短线超跌抄底：BIAS+W&R 双指标共振",
+      "text": "当BIAS20小于-8并且WR14大于90时买入；当BIAS20大于8或者WR14小于10或者亏损超过8%时卖出；最长持有20天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "BIAS20 < -8",
+        "WR14 > 90"
+      ],
+      "sell": [
+        "BIAS20 > 8",
+        "WR14 < 10"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0.08,
+        "maxHold": 20,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/19_BIAS+WR共振抄底.py",
+      "py_lines": 323
+    },
+    {
+      "id": "20",
+      "name": "布林下轨反弹",
+      "cat": "均值回归",
+      "src": "boll 布林带轨道反弹（触下轨买、回中轨卖）",
+      "text": "当收盘价跌破布林下轨时买入；当收盘价大于布林中轨或者亏损超过8%时卖出；最长持有20天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "收盘价 < BOLL下轨"
+      ],
+      "sell": [
+        "收盘价 > BOLL中轨"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0.08,
+        "maxHold": 20,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/20_布林下轨反弹.py",
+      "py_lines": 317
+    },
+    {
+      "id": "21",
+      "name": "四连阴+RSI超卖",
+      "cat": "均值回归",
+      "src": "连续下跌后的技术性反弹",
+      "text": "当连续4天下跌并且RSI6小于25时买入；当盈利超过8%或者亏损超过5%时卖出；最长持有10天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "RSI6 < 25",
+        "连续 4 天下跌"
+      ],
+      "sell": [],
+      "risk": {
+        "takeProfit": 0.08,
+        "stopLoss": 0.05,
+        "maxHold": 10,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/21_四连阴+RSI超卖.py",
+      "py_lines": 317
+    },
+    {
+      "id": "22",
+      "name": "CCI超卖反弹",
+      "cat": "均值回归",
+      "src": "CCI 顺势指标 ±100 区间",
+      "text": "当CCI14小于-100时买入；当CCI14大于100或者亏损超过7%时卖出；最长持有20天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "CCI14 < -100"
+      ],
+      "sell": [
+        "CCI14 > 100"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0.07,
+        "maxHold": 20,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/22_CCI超卖反弹.py",
+      "py_lines": 318
+    },
+    {
+      "id": "23",
+      "name": "单日暴跌反弹",
+      "cat": "均值回归",
+      "src": "强势股急跌买点（跌幅+均线上方）",
+      "text": "当跌幅超过7%并且收盘价在20日均线之上时买入；当盈利超过6%或者亏损超过5%时卖出；最长持有8天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "收盘价 > MA20",
+        "涨跌幅(%) < -7"
+      ],
+      "sell": [],
+      "risk": {
+        "takeProfit": 0.06,
+        "stopLoss": 0.05,
+        "maxHold": 8,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/23_单日暴跌反弹.py",
+      "py_lines": 317
+    },
+    {
+      "id": "24",
+      "name": "量价齐升",
+      "cat": "量价",
+      "src": "放量上涨且处于均线上方",
+      "text": "当涨幅大于3%并且成交量放大2倍并且收盘价在20日均线之上时买入；当盈利超过10%或者亏损超过6%时卖出；最长持有15天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "收盘价 > MA20",
+        "涨跌幅(%) > 3",
+        "成交量 > 5日均量 × 2"
+      ],
+      "sell": [],
+      "risk": {
+        "takeProfit": 0.1,
+        "stopLoss": 0.06,
+        "maxHold": 15,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/24_量价齐升.py",
+      "py_lines": 319
+    },
+    {
+      "id": "25",
+      "name": "N字涨停战法",
+      "cat": "量价",
+      "src": "N 字涨停战法（1个涨停+回调缩量+负乖离）",
+      "text": "当近5个交易日只有1个涨停并且BIAS5小于-3并且成交量低于5日均量的0.8倍时买入；当盈利超过10%或者亏损超过6%时卖出；最长持有10天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "BIAS5 < -3",
+        "近5日涨停次数 == 1",
+        "成交量 < 5日均量 × 0.8"
+      ],
+      "sell": [],
+      "risk": {
+        "takeProfit": 0.1,
+        "stopLoss": 0.06,
+        "maxHold": 10,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/25_N字涨停战法.py",
+      "py_lines": 321
+    },
+    {
+      "id": "26",
+      "name": "涨停次日跟进",
+      "cat": "量价",
+      "src": "打板次日跟进（涨停+高换手）",
+      "text": "当近1个交易日只有1个涨停并且换手率大于5%时买入；当盈利超过8%或者亏损超过5%时卖出；最长持有5天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "近1日涨停次数 == 1",
+        "换手率(%) > 5"
+      ],
+      "sell": [],
+      "risk": {
+        "takeProfit": 0.08,
+        "stopLoss": 0.05,
+        "maxHold": 5,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/26_涨停次日跟进.py",
+      "py_lines": 318
+    },
+    {
+      "id": "27",
+      "name": "换手率突增",
+      "cat": "量价",
+      "src": "换手率异动+上涨（资金关注度骤升）",
+      "text": "当换手率大于8%并且涨幅大于5%时买入；当盈利超过10%或者亏损超过6%时卖出；最长持有10天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "换手率(%) > 8",
+        "涨跌幅(%) > 5"
+      ],
+      "sell": [],
+      "risk": {
+        "takeProfit": 0.1,
+        "stopLoss": 0.06,
+        "maxHold": 10,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/27_换手率突增.py",
+      "py_lines": 317
+    },
+    {
+      "id": "28",
+      "name": "低换手率+趋势向上",
+      "cat": "量价",
+      "src": "低换手率因子（低换手组合长期占优）",
+      "text": "当换手率小于1%并且收盘价在20日均线之上并且5日均线大于20日均线时买入；当收盘价跌破20日均线或者亏损超过7%时卖出；最长持有40天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "MA5 > MA20",
+        "收盘价 > MA20",
+        "换手率(%) < 1"
+      ],
+      "sell": [
+        "收盘价 < MA20"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0.07,
+        "maxHold": 40,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/28_低换手率+趋势向上.py",
+      "py_lines": 321
+    },
+    {
+      "id": "29",
+      "name": "缩量回踩20日线",
+      "cat": "量价",
+      "src": "缩量洗盘回踩中期均线",
+      "text": "当5日均线大于20日均线并且回踩20日均线并且成交量低于5日均量的0.7倍时买入；当盈利超过12%或者亏损超过6%时卖出；最长持有20天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "MA5 > MA20",
+        "收盘价 > MA20×0.98",
+        "收盘价 < MA20×1.02",
+        "成交量 < 5日均量 × 0.7"
+      ],
+      "sell": [],
+      "risk": {
+        "takeProfit": 0.12,
+        "stopLoss": 0.06,
+        "maxHold": 20,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/29_缩量回踩20日线.py",
+      "py_lines": 321
+    },
+    {
+      "id": "30",
+      "name": "30日新高+MACD共振",
+      "cat": "多指标共振",
+      "src": "多策略共振（突破+MACD+量能）",
+      "text": "当收盘价突破30日新高并且MACD金叉并且成交量放大1.5倍时买入；当MACD死叉或者亏损超过8%时卖出；最长持有45天。",
+      "buy_op": "and",
+      "sell_op": "or",
+      "buy": [
+        "MACD 金叉",
+        "创 30 日新高",
+        "成交量 > 5日均量 × 1.5"
+      ],
+      "sell": [
+        "MACD 死叉"
+      ],
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0.08,
+        "maxHold": 45,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/30_30日新高+MACD共振.py",
+      "py_lines": 322
+    }
+  ]
+}

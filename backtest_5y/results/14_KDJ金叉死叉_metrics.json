@@ -1,0 +1,89 @@
+{
+  "id": "14",
+  "name": "KDJ金叉死叉",
+  "cat": "KDJ",
+  "src": "kdj 随机指标策略（K 上穿 D）",
+  "text": "KDJ金叉时买入；KDJ死叉时卖出；最长持有30天。",
+  "buy": [
+    "KDJ 金叉"
+  ],
+  "sell": [
+    "KDJ 死叉"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0,
+    "maxHold": 30,
+    "minHold": 1
+  },
+  "signal": {
+    "trades": 443820,
+    "wins": 174663,
+    "losses": 269157,
+    "win_rate": 0.3935446802757875,
+    "geo_ret": -0.0004873469966721084,
+    "turns_per_year": 33.454633527578,
+    "annual_single": -0.01617573397976968,
+    "avg_ret": 0.003511073482492902,
+    "median_ret": -0.013239,
+    "avg_win": 0.07762591148096619,
+    "avg_loss": -0.0445839786592955,
+    "profit_factor": 1.1298560794353991,
+    "expectancy": 0.003511073482492902,
+    "total_return": 0.05627442617869938,
+    "annual_return": 0.011092046652069865,
+    "max_drawdown": 0.39928522675485867,
+    "sharpe": 0.1566080300335092,
+    "avg_bars": 7.293459059979271,
+    "avg_positions": 3039.473988439306,
+    "best": 9.686975,
+    "worst": -0.970978,
+    "stocks_traded": 5377
+  },
+  "portfolio": {
+    "trades": 2197,
+    "wins": 639,
+    "losses": 1558,
+    "win_rate": 0.29085116067364586,
+    "total_return": -0.954486515,
+    "annual_return": -0.46342119822691386,
+    "max_drawdown": 0.9672227256573471,
+    "sharpe": -1.2439305318573084,
+    "profit_factor": 0.5694599486746483,
+    "avg_ret": -0.024394526172052795,
+    "avg_win": 0.09750772926447575,
+    "avg_loss": -0.07439166431322207,
+    "avg_bars": 6.982248520710059,
+    "best": 1.178197,
+    "worst": -0.689468,
+    "final_equity": 455134.85,
+    "bars_traded": 1211,
+    "total_pnl": -9540108.26
+  },
+  "portfolio_random_pick": {
+    "trades": 2716,
+    "wins": 927,
+    "losses": 1789,
+    "win_rate": 0.34131075110456555,
+    "total_return": -0.604796822,
+    "annual_return": -0.17059851299209228,
+    "max_drawdown": 0.6780885492369297,
+    "sharpe": -0.6057318722180381,
+    "profit_factor": 0.807730586140222,
+    "avg_ret": -0.010170753681885126,
+    "avg_win": 0.0720165587918015,
+    "avg_loss": -0.05275747177193963,
+    "avg_bars": 7.080265095729013,
+    "best": 0.75579,
+    "worst": -0.689468,
+    "final_equity": 3952031.78,
+    "bars_traded": 1211,
+    "total_pnl": -6082491.94
+  },
+  "exit_reasons": {
+    "信号": 441628,
+    "区间结束平仓": 1891,
+    "到期": 301
+  },
+  "seconds": 7.4
+}

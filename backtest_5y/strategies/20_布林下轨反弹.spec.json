@@ -1,0 +1,65 @@
+{
+  "id": "20",
+  "name": "布林下轨反弹",
+  "cat": "均值回归",
+  "src": "boll 布林带轨道反弹（触下轨买、回中轨卖）",
+  "text": "当收盘价跌破布林下轨时买入；当收盘价大于布林中轨或者亏损超过8%时卖出；最长持有20天。",
+  "buy_op": "and",
+  "sell_op": "or",
+  "buy": [
+    "收盘价 < BOLL下轨"
+  ],
+  "sell": [
+    "收盘价 > BOLL中轨"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0.08,
+    "maxHold": 20,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/20_布林下轨反弹.py",
+  "py_lines": 317,
+  "spec": {
+    "name": "当收盘价跌破布林下轨时买入；当收盘价大于布林中轨或者亏损超过8%时卖出；最长持有",
+    "text": "当收盘价跌破布林下轨时买入；当收盘价大于布林中轨或者亏损超过8%时卖出；最长持有20天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "close"
+          },
+          "op": "<",
+          "b": {
+            "ind": "bollDn"
+          }
+        }
+      ]
+    },
+    "sell": {
+      "op": "or",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "close"
+          },
+          "op": ">",
+          "b": {
+            "ind": "bollMid"
+          }
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0.08,
+      "maxHold": 20,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

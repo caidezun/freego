@@ -1,0 +1,59 @@
+{
+  "id": "21",
+  "name": "四连阴+RSI超卖",
+  "cat": "均值回归",
+  "src": "连续下跌后的技术性反弹",
+  "text": "当连续4天下跌并且RSI6小于25时买入；当盈利超过8%或者亏损超过5%时卖出；最长持有10天。",
+  "buy_op": "and",
+  "sell_op": "and",
+  "buy": [
+    "RSI6 < 25",
+    "连续 4 天下跌"
+  ],
+  "sell": [],
+  "risk": {
+    "takeProfit": 0.08,
+    "stopLoss": 0.05,
+    "maxHold": 10,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/21_四连阴+RSI超卖.py",
+  "py_lines": 317,
+  "spec": {
+    "name": "当连续4天下跌并且RSI6小于25时买入；当盈利超过8%或者亏损超过5%时卖出；",
+    "text": "当连续4天下跌并且RSI6小于25时买入；当盈利超过8%或者亏损超过5%时卖出；最长持有10天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "rsi",
+            "n": 6
+          },
+          "op": "<",
+          "b": {
+            "const": 25
+          }
+        },
+        {
+          "kind": "streak",
+          "n": 4,
+          "dir": "down"
+        }
+      ]
+    },
+    "sell": {
+      "op": "and",
+      "conds": []
+    },
+    "risk": {
+      "takeProfit": 0.08,
+      "stopLoss": 0.05,
+      "maxHold": 10,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

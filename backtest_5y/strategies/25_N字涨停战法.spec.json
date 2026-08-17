@@ -1,0 +1,71 @@
+{
+  "id": "25",
+  "name": "N字涨停战法",
+  "cat": "量价",
+  "src": "N 字涨停战法（1个涨停+回调缩量+负乖离）",
+  "text": "当近5个交易日只有1个涨停并且BIAS5小于-3并且成交量低于5日均量的0.8倍时买入；当盈利超过10%或者亏损超过6%时卖出；最长持有10天。",
+  "buy_op": "and",
+  "sell_op": "and",
+  "buy": [
+    "BIAS5 < -3",
+    "近5日涨停次数 == 1",
+    "成交量 < 5日均量 × 0.8"
+  ],
+  "sell": [],
+  "risk": {
+    "takeProfit": 0.1,
+    "stopLoss": 0.06,
+    "maxHold": 10,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/25_N字涨停战法.py",
+  "py_lines": 321,
+  "spec": {
+    "name": "当近5个交易日只有1个涨停并且BIAS5小于-3并且成交量低于5日均量的0.8倍",
+    "text": "当近5个交易日只有1个涨停并且BIAS5小于-3并且成交量低于5日均量的0.8倍时买入；当盈利超过10%或者亏损超过6%时卖出；最长持有10天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "bias",
+            "n": 5
+          },
+          "op": "<",
+          "b": {
+            "const": -3
+          }
+        },
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "limitup",
+            "n": 5
+          },
+          "op": "==",
+          "b": {
+            "const": 1
+          }
+        },
+        {
+          "kind": "volShrink",
+          "mult": 0.8,
+          "n": 5
+        }
+      ]
+    },
+    "sell": {
+      "op": "and",
+      "conds": []
+    },
+    "risk": {
+      "takeProfit": 0.1,
+      "stopLoss": 0.06,
+      "maxHold": 10,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

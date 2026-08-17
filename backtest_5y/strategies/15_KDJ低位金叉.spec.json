@@ -1,0 +1,64 @@
+{
+  "id": "15",
+  "name": "KDJ低位金叉",
+  "cat": "KDJ",
+  "src": "KDJ 低位（K<30）金叉",
+  "text": "当KDJ金叉并且K值小于30时买入；当KDJ死叉或者盈利超过15%或者亏损超过7%时卖出；最长持有30天。",
+  "buy_op": "and",
+  "sell_op": "or",
+  "buy": [
+    "KDJ 金叉",
+    "KDJ-K < 30"
+  ],
+  "sell": [
+    "KDJ 死叉"
+  ],
+  "risk": {
+    "takeProfit": 0.15,
+    "stopLoss": 0.07,
+    "maxHold": 30,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/15_KDJ低位金叉.py",
+  "py_lines": 319,
+  "spec": {
+    "name": "当KDJ金叉并且K值小于30时买入；当KDJ死叉或者盈利超过15%或者亏损超过7",
+    "text": "当KDJ金叉并且K值小于30时买入；当KDJ死叉或者盈利超过15%或者亏损超过7%时卖出；最长持有30天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "kdjCross",
+          "dir": "up"
+        },
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "kdjK"
+          },
+          "op": "<",
+          "b": {
+            "const": 30
+          }
+        }
+      ]
+    },
+    "sell": {
+      "op": "or",
+      "conds": [
+        {
+          "kind": "kdjCross",
+          "dir": "down"
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0.15,
+      "stopLoss": 0.07,
+      "maxHold": 30,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

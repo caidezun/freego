@@ -1,0 +1,79 @@
+{
+  "id": "18",
+  "name": "RSI14强弱分界突破",
+  "cat": "RSI",
+  "src": "RSI 中枢 50 上方视为多头",
+  "text": "当RSI14大于55并且收盘价在20日均线之上时买入；当RSI14小于45或者亏损超过7%时卖出；最长持有30天。",
+  "buy_op": "and",
+  "sell_op": "or",
+  "buy": [
+    "RSI14 > 55",
+    "收盘价 > MA20"
+  ],
+  "sell": [
+    "RSI14 < 45"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0.07,
+    "maxHold": 30,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/18_RSI14强弱分界突破.py",
+  "py_lines": 319,
+  "spec": {
+    "name": "当RSI14大于55并且收盘价在20日均线之上时买入；当RSI14小于45或者亏",
+    "text": "当RSI14大于55并且收盘价在20日均线之上时买入；当RSI14小于45或者亏损超过7%时卖出；最长持有30天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "rsi",
+            "n": 14
+          },
+          "op": ">",
+          "b": {
+            "const": 55
+          }
+        },
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "close"
+          },
+          "op": ">",
+          "b": {
+            "ind": "ma",
+            "n": 20
+          }
+        }
+      ]
+    },
+    "sell": {
+      "op": "or",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "rsi",
+            "n": 14
+          },
+          "op": "<",
+          "b": {
+            "const": 45
+          }
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0.07,
+      "maxHold": 30,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

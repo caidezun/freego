@@ -1,0 +1,65 @@
+{
+  "id": "12",
+  "name": "MACD金叉+均线过滤",
+  "cat": "MACD",
+  "src": "多指标共振：MACD + 20日均线方向",
+  "text": "MACD金叉并且收盘价在20日均线之上时买入；MACD死叉或者盈利超过15%或者亏损超过7%时卖出；最长持有40天。",
+  "buy_op": "and",
+  "sell_op": "or",
+  "buy": [
+    "MACD 金叉",
+    "收盘价 > MA20"
+  ],
+  "sell": [
+    "MACD 死叉"
+  ],
+  "risk": {
+    "takeProfit": 0.15,
+    "stopLoss": 0.07,
+    "maxHold": 40,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/12_MACD金叉+均线过滤.py",
+  "py_lines": 319,
+  "spec": {
+    "name": "MACD金叉并且收盘价在20日均线之上时买入；MACD死叉或者盈利超过15%或者",
+    "text": "MACD金叉并且收盘价在20日均线之上时买入；MACD死叉或者盈利超过15%或者亏损超过7%时卖出；最长持有40天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "macdCross",
+          "dir": "up"
+        },
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "close"
+          },
+          "op": ">",
+          "b": {
+            "ind": "ma",
+            "n": 20
+          }
+        }
+      ]
+    },
+    "sell": {
+      "op": "or",
+      "conds": [
+        {
+          "kind": "macdCross",
+          "dir": "down"
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0.15,
+      "stopLoss": 0.07,
+      "maxHold": 40,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

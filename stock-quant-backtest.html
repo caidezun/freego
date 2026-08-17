@@ -301,6 +301,11 @@ ul.tips li{margin:2px 0}
       <div class="hint" style="margin-bottom:6px">用中文描述买卖规则，点击“生成策略代码”会翻译成可执行的 Python 回测代码（时间段由第 5 步注入，历史数据来自第 1 步下载的本地库）。</div>
       <textarea id="stratText" rows="4" placeholder="例：当5日均线上穿20日均线并且换手率大于2%时买入；当5日均线下穿20日均线或者盈利超过15%或者亏损超过7%时卖出；最长持有30天。"></textarea>
       <div class="row" style="margin:8px 0">
+        <label class="f" style="min-width:260px">策略库（30 个常用策略，选中即填入并生成代码）
+          <select id="selPreset"><option value="">— 选择一个常用策略 —</option></select>
+        </label>
+      </div>
+      <div class="row" style="margin:8px 0">
         <span class="hint">示例：</span>
         <span class="pill" data-eg="ma">均线金叉</span>
         <span class="pill" data-eg="macd">MACD金叉+止盈止损</span>
@@ -705,7 +710,10 @@ const Source = (() => {
       const di = d2i(r[0]);
       if (di < beg || di > end || seen.has(di)) continue;
       seen.add(di);
-      const o = +r[1], c = +r[2], h = +r[3], l = +r[4], vol = +r[5];   // vol 单位：手
+      const o = +r[1], c = +r[2], h = +r[3], l = +r[4];
+      // 该源对科创板（688/689）返回的成交量单位是「股」而非「手」，不换算会让成交额与
+      // 换手率放大 100 倍（已用同源实时快照交叉验证）
+      const vol = +r[5] / (/^68[89]/.test(code) ? 100 : 1);
       const base = prevClose || o;
       const amp = base ? (h - l) / base * 100 : 0;
       const chg = base ? (c / base - 1) * 100 : 0;
@@ -1000,6 +1008,42 @@ const Ind = {
       up[i] = mid[i] + k * sd; dn[i] = mid[i] - k * sd;
     }
     return { mid, up, dn };
+  },
+  bias(close, n) {                       // 乖离率：(收盘 - MAn) / MAn × 100
+    const ma = Ind.ma(close, n), N = close.length, out = new Float64Array(N).fill(NaN);
+    for (let i = 0; i < N; i++) if (isFinite(ma[i]) && ma[i] !== 0) out[i] = (close[i] - ma[i]) / ma[i] * 100;
+    return out;
+  },
+  wr(high, low, close, n) {              // 威廉指标：越接近 100 越处于区间低位
+    const N = close.length, out = new Float64Array(N).fill(NaN);
+    for (let i = n - 1; i < N; i++) {
+      let hh = -Infinity, ll = Infinity;
+      for (let j = i - n + 1; j <= i; j++) { if (high[j] > hh) hh = high[j]; if (low[j] < ll) ll = low[j]; }
+      out[i] = hh === ll ? 50 : (hh - close[i]) / (hh - ll) * 100;
+    }
+    return out;
+  },
+  cci(high, low, close, n) {
+    const N = close.length, tp = new Float64Array(N), out = new Float64Array(N).fill(NaN);
+    for (let i = 0; i < N; i++) tp[i] = (high[i] + low[i] + close[i]) / 3;
+    const ma = Ind.ma(tp, n);
+    for (let i = n - 1; i < N; i++) {
+      let md = 0;
+      for (let j = i - n + 1; j <= i; j++) md += Math.abs(tp[j] - ma[i]);
+      md /= n;
+      out[i] = md === 0 ? 0 : (tp[i] - ma[i]) / (0.015 * md);
+    }
+    return out;
+  },
+  limitUpCount(chg, n) {                 // 近 n 个交易日内的涨停次数（涨幅 ≥ 9.8%）
+    const N = chg.length, out = new Float64Array(N).fill(NaN);
+    let c = 0;
+    for (let i = 0; i < N; i++) {
+      if (chg[i] >= 9.8) c++;
+      if (i >= n && chg[i - n] >= 9.8) c--;
+      if (i >= n - 1) out[i] = c;
+    }
+    return out;
   },
   rollMax(arr, n) {
     const N = arr.length, out = new Float64Array(N).fill(NaN);
@@ -1459,8 +1503,12 @@ const Strategy = (() => {
       if (/金叉/.test(t)) add({ kind: 'kdjCross', dir: 'up' });
       else if (/死叉/.test(t)) add({ kind: 'kdjCross', dir: 'down' });
     }
-    if ((m = new RegExp('[JjKkDd]\\s*值?\\s*' + LT + '\\s*' + NUM).exec(t)) && /KDJ|kdj|[JKD]值/.test(t))
-      add({ kind: 'cmp', a: { ind: 'kdjK' }, op: '<', b: { const: +m[2] } });
+    if (/KDJ|kdj|[JKD]\s*值/.test(t)) {
+      const KL = { J: 'kdjJ', K: 'kdjK', D: 'kdjD' };
+      const SN = '(-?[0-9]+(?:\\.[0-9]+)?)';
+      if ((m = new RegExp('([JjKkDd])\\s*值?\\s*(?:' + GT + '|' + LT + ')\\s*' + SN).exec(t)))
+        add({ kind: 'cmp', a: { ind: KL[m[1].toUpperCase()] }, op: m[2] ? '>' : '<', b: { const: +m[4] } });
+    }
     // RSI
     if ((m = new RegExp('(?:RSI|rsi)\\s*\\(?([0-9]*)\\)?\\s*(?:指标)?\\s*(?:' + GT + '|' + LT + ')\\s*' + NUM).exec(t))) {
       const n = m[1] ? +m[1] : 6, up = !!m[2], v = +m[4];
@@ -1474,6 +1522,28 @@ const Strategy = (() => {
       const above = !m[2] || /上/.test(m[2]);
       add({ kind: 'cmp', a: { ind: 'close' }, op: above ? '>' : '<', b: { ind: 'ma', n: +m[1] } });
     }
+    // 乖离率 BIAS / 威廉指标 WR / CCI（阈值可为负数）
+    const SNUM = '(-?[0-9]+(?:\\.[0-9]+)?)';
+    if ((m = new RegExp('(?:乖离率|BIAS|bias)\\s*\\(?([0-9]*)\\)?\\s*(?:' + GT + '|' + LT + ')\\s*' + SNUM).exec(t)))
+      add({ kind: 'cmp', a: { ind: 'bias', n: +m[1] || 20 }, op: m[2] ? '>' : '<', b: { const: +m[4] } });
+    if ((m = new RegExp('(?:威廉指标|W&R|WR|wr)\\s*\\(?([0-9]*)\\)?\\s*(?:' + GT + '|' + LT + ')\\s*' + SNUM).exec(t)))
+      add({ kind: 'cmp', a: { ind: 'wr', n: +m[1] || 14 }, op: m[2] ? '>' : '<', b: { const: +m[4] } });
+    if ((m = new RegExp('(?:CCI|cci)\\s*\\(?([0-9]*)\\)?\\s*(?:' + GT + '|' + LT + ')\\s*' + SNUM).exec(t)))
+      add({ kind: 'cmp', a: { ind: 'cci', n: +m[1] || 14 }, op: m[2] ? '>' : '<', b: { const: +m[4] } });
+    // 回踩/依托某条均线：收盘价落在该均线上下 2% 的带内
+    if ((m = /(?:回踩|回抽|回落到|回落至|靠近|依托|站在)\s*([0-9]+)\s*日\s*(?:均线|线)/.exec(t))) {
+      add({ kind: 'cmp', a: { ind: 'close' }, op: '>', b: { ind: 'ma', n: +m[1], k: 0.98 } });
+      add({ kind: 'cmp', a: { ind: 'close' }, op: '<', b: { ind: 'ma', n: +m[1], k: 1.02 } });
+    }
+    // 近 N 日涨停次数（命中后不再叠加“当日涨停”，否则两条会互相矛盾）
+    let hasLuCount = false;
+    if ((m = /(?:近|最近|过去)\s*([0-9]+)\s*(?:个)?(?:交易日|日|天)\s*(?:内)?\s*(?:只|仅)?\s*(?:有|出现|存在)\s*([0-9]+)\s*(?:次|个|个)?\s*涨停/.exec(t))) {
+      add({ kind: 'cmp', a: { ind: 'limitup', n: +m[1] }, op: '==', b: { const: +m[2] } });
+      hasLuCount = true;
+    } else if ((m = /(?:近|最近|过去)\s*([0-9]+)\s*(?:个)?(?:交易日|日|天)\s*(?:内)?\s*(?:至少)\s*([0-9]+)\s*(?:次|个)?\s*涨停/.exec(t))) {
+      add({ kind: 'cmp', a: { ind: 'limitup', n: +m[1] }, op: '>=', b: { const: +m[2] } });
+      hasLuCount = true;
+    }
     // 换手率
     if ((m = new RegExp('换手率\\s*(?:' + GT + '|' + LT + ')\\s*' + NUM).exec(t)))
       add({ kind: 'cmp', a: { ind: 'turnover' }, op: m[1] ? '>' : '<', b: { const: +m[3] } });
@@ -1485,13 +1555,15 @@ const Strategy = (() => {
       add({ kind: 'cmp', a: { ind: 'chg' }, op: m[1] ? '>' : '<', b: { const: +m[3] } });
     if ((m = new RegExp('(?:当日|单日)?跌幅\\s*(?:' + GT + '|' + LT + ')\\s*' + NUM).exec(t)))
       add({ kind: 'cmp', a: { ind: 'chg' }, op: m[1] ? '<' : '>', b: { const: -Math.abs(+m[3]) } });
-    if (/涨停/.test(t) && !/(?:昨|前)日涨停/.test(t)) add({ kind: 'cmp', a: { ind: 'chg' }, op: '>', b: { const: 9.5 } });
+    if (/涨停/.test(t) && !hasLuCount && !/(?:昨|前)日涨停/.test(t)) add({ kind: 'cmp', a: { ind: 'chg' }, op: '>', b: { const: 9.5 } });
     if (/跌停/.test(t)) add({ kind: 'cmp', a: { ind: 'chg' }, op: '<', b: { const: -9.5 } });
     // 成交量放大 N 倍
-    if ((m = new RegExp('(?:成交量|量能|量)\\s*(?:放大|大于|超过|是)?\\s*(?:[0-9]+日)?(?:均量|平均)?[的]?\\s*' + NUM + '\\s*倍').exec(t)))
+    if ((m = new RegExp('(?:成交量|量能|量)\\s*(?:萎缩到?|缩量到?|小于|低于|不足)\\s*(?:[0-9]+日)?(?:均量|平均量?)?[的]?\\s*' + NUM + '\\s*倍').exec(t)))
+      add({ kind: 'volShrink', mult: +m[1], n: 5 });
+    else if ((m = new RegExp('(?:成交量|量能|量)\\s*(?:放大|大于|超过|是)?\\s*(?:[0-9]+日)?(?:均量|平均)?[的]?\\s*' + NUM + '\\s*倍').exec(t)))
       add({ kind: 'volSpike', mult: +m[1], n: 5 });
     else if (/放量|量能放大|成交量放大/.test(t)) add({ kind: 'volSpike', mult: 2, n: 5 });
-    if (/缩量/.test(t)) add({ kind: 'volShrink', mult: .7, n: 5 });
+    else if (/缩量/.test(t)) add({ kind: 'volShrink', mult: .7, n: 5 });
     // 连续 N 天涨跌
     if ((m = /连续\s*([0-9]+)\s*[天日根]?\s*(上涨|阳线|收阳|下跌|阴线|收阴)/.exec(t)))
       add({ kind: 'streak', n: +m[1], dir: /涨|阳/.test(m[2]) ? 'up' : 'down' });
@@ -1519,8 +1591,8 @@ const Strategy = (() => {
     for (const cl of clauses) {
       // 止盈 / 止损 / 最长持有：整体风控，与买卖条件无关
       let m;
-      if ((m = new RegExp('(?:止盈|盈利|获利|收益)\\s*(?:达到|超过|大于|>)?\\s*' + NUM + '\\s*%').exec(cl))) spec.risk.takeProfit = +m[1] / 100;
-      if ((m = new RegExp('(?:止损|亏损|回撤|浮亏)\\s*(?:达到|超过|大于|>)?\\s*' + NUM + '\\s*%').exec(cl))) spec.risk.stopLoss = +m[1] / 100;
+      if ((m = new RegExp('(?:止盈|盈利|获利|收益)\\s*(?:达到|超过|大于|>)?\\s*' + NUM + '\\s*%').exec(cl))) spec.risk.takeProfit = +(+m[1] / 100).toFixed(6);
+      if ((m = new RegExp('(?:止损|亏损|回撤|浮亏)\\s*(?:达到|超过|大于|>)?\\s*' + NUM + '\\s*%').exec(cl))) spec.risk.stopLoss = +(+m[1] / 100).toFixed(6);
       if ((m = /(?:最长|最多|持有满?|持股)\s*([0-9]+)\s*(?:个)?(?:交易日|日|天)/.exec(cl))) spec.risk.maxHold = +m[1];
 
       const isSell = /(卖出|卖掉|平仓|清仓|出场|离场|止盈|止损|卖)/.test(cl);
@@ -1547,9 +1619,10 @@ const Strategy = (() => {
   }
   /* 人类可读的条件描述 */
   function opName(o) {
-    const map = { close: '收盘价', open: '开盘价', high: '最高价', low: '最低价', ma: 'MA', rsi: 'RSI', turnover: '换手率(%)', chg: '涨跌幅(%)', amp: '振幅(%)', volume: '成交量', amount: '成交额', fcap: '流通市值', kdjK: 'KDJ-K', macdDif: 'MACD-DIF', bollUp: 'BOLL上轨', bollDn: 'BOLL下轨', bollMid: 'BOLL中轨' };
+    const map = { close: '收盘价', open: '开盘价', high: '最高价', low: '最低价', ma: 'MA', rsi: 'RSI', turnover: '换手率(%)', chg: '涨跌幅(%)', amp: '振幅(%)', volume: '成交量', amount: '成交额', fcap: '流通市值', kdjK: 'KDJ-K', kdjD: 'KDJ-D', kdjJ: 'KDJ-J', macdDif: 'MACD-DIF', bollUp: 'BOLL上轨', bollDn: 'BOLL下轨', bollMid: 'BOLL中轨', bias: 'BIAS', wr: 'WR', cci: 'CCI', limitup: '涨停次数(近%d日)' };
     if (o.const !== undefined) return String(o.const);
-    return (map[o.ind] || o.ind) + (o.n ? o.n : '');
+    const base = o.ind === 'limitup' ? `近${o.n}日涨停次数` : (map[o.ind] || o.ind) + (o.n ? o.n : '');
+    return o.k ? `${base}×${o.k}` : base;
   }
   function describe(c) {
     switch (c.kind) {
@@ -1573,14 +1646,14 @@ const Codegen = (() => {
     close: 'S["close"][i]', open: 'S["open"][i]', high: 'S["high"][i]', low: 'S["low"][i]',
     turnover: 'S["turnover"][i]', chg: 'S["chg"][i]', amp: 'S["amp"][i]',
     volume: 'S["volume"][i]', amount: 'S["amount"][i]', fcap: 'S["fcap"][i]',
-    kdjK: 'S["kdj_k"][i]', macdDif: 'S["macd_dif"][i]',
+    kdjK: 'S["kdj_k"][i]', kdjD: 'S["kdj_d"][i]', kdjJ: 'S["kdj_j"][i]', macdDif: 'S["macd_dif"][i]',
     bollUp: 'S["boll_up"][i]', bollDn: 'S["boll_dn"][i]', bollMid: 'S["boll_mid"][i]'
   };
+  const SPAN_IND = { ma: 'ma', rsi: 'rsi', bias: 'bias', wr: 'wr', cci: 'cci', limitup: 'lu' };
   function operand(o) {
     if (o.const !== undefined) return String(o.const);
-    if (o.ind === 'ma') return `S["ma${o.n}"][i]`;
-    if (o.ind === 'rsi') return `S["rsi${o.n}"][i]`;
-    return IND_PY[o.ind] || `S["close"][i]`;
+    const base = SPAN_IND[o.ind] ? `S["${SPAN_IND[o.ind]}${o.n}"][i]` : (IND_PY[o.ind] || 'S["close"][i]');
+    return o.k ? `${base} * ${o.k}` : base;
   }
   function cond(c) {
     switch (c.kind) {
@@ -1614,19 +1687,28 @@ const Codegen = (() => {
   }
   function neededSpans(spec) {
     const mas = new Set([5, 10, 20]), rsis = new Set(), hh = new Set(), ll = new Set(), vma = new Set();
+    const bias = new Set(), wr = new Set(), cci = new Set(), lu = new Set();
     const walk = g => g.conds.forEach(c => {
       if (c.kind === 'cross') { mas.add(c.a.n); mas.add(c.b.n); }
       if (c.kind === 'breakout') (c.dir === 'up' ? hh : ll).add(c.n);
       if (c.kind === 'volSpike' || c.kind === 'volShrink') vma.add(c.n);
       if (c.kind === 'cmp') {
         for (const o of [c.a, c.b]) {
-          if (o && o.ind === 'ma') mas.add(o.n);
-          if (o && o.ind === 'rsi') rsis.add(o.n);
+          if (!o) continue;
+          if (o.ind === 'ma') mas.add(o.n);
+          if (o.ind === 'rsi') rsis.add(o.n);
+          if (o.ind === 'bias') { bias.add(o.n); mas.add(o.n); }
+          if (o.ind === 'wr') wr.add(o.n);
+          if (o.ind === 'cci') cci.add(o.n);
+          if (o.ind === 'limitup') lu.add(o.n);
         }
       }
     });
     walk(spec.buy); walk(spec.sell);
-    return { mas: [...mas].sort((a, b) => a - b), rsis: [...rsis], hh: [...hh], ll: [...ll], vma: [...vma] };
+    return {
+      mas: [...mas].sort((a, b) => a - b), rsis: [...rsis], hh: [...hh], ll: [...ll], vma: [...vma],
+      bias: [...bias], wr: [...wr], cci: [...cci], lu: [...lu]
+    };
   }
   function gen(spec, ctx) {
     const nd = neededSpans(spec);
@@ -1728,6 +1810,38 @@ const Codegen = (() => {
     P('        up[i], dn[i] = m + k * sd, m - k * sd');
     P('    return mid, up, dn');
     P('');
+    P('def bias(close, n):');
+    P('    # 乖离率：(收盘 - MAn) / MAn × 100');
+    P('    ma = sma(close, n)');
+    P('    return [ (close[i] - ma[i]) / ma[i] * 100 if ma[i] == ma[i] and ma[i] != 0 else NA');
+    P('             for i in range(len(close)) ]');
+    P('');
+    P('def wr(high, low, close, n):');
+    P('    # 威廉指标：越接近 100 越处于区间低位');
+    P('    out = [NA] * len(close)');
+    P('    for i in range(n - 1, len(close)):');
+    P('        hh, ll = max(high[i-n+1:i+1]), min(low[i-n+1:i+1])');
+    P('        out[i] = 50.0 if hh == ll else (hh - close[i]) / (hh - ll) * 100');
+    P('    return out');
+    P('');
+    P('def cci(high, low, close, n):');
+    P('    tp = [(high[i] + low[i] + close[i]) / 3.0 for i in range(len(close))]');
+    P('    ma = sma(tp, n)');
+    P('    out = [NA] * len(close)');
+    P('    for i in range(n - 1, len(close)):');
+    P('        md = sum(abs(tp[j] - ma[i]) for j in range(i - n + 1, i + 1)) / n');
+    P('        out[i] = 0.0 if md == 0 else (tp[i] - ma[i]) / (0.015 * md)');
+    P('    return out');
+    P('');
+    P('def limit_up_count(chg, n):');
+    P('    # 近 n 个交易日内的涨停次数（涨幅 >= 9.8%）');
+    P('    out, c = [NA] * len(chg), 0');
+    P('    for i in range(len(chg)):');
+    P('        if chg[i] >= 9.8: c += 1');
+    P('        if i >= n and chg[i - n] >= 9.8: c -= 1');
+    P('        if i >= n - 1: out[i] = float(c)');
+    P('    return out');
+    P('');
     P('def roll_max(a, n):');
     P('    return [NA if i < n - 1 else max(a[i-n+1:i+1]) for i in range(len(a))]');
     P('');
@@ -1764,6 +1878,10 @@ const Codegen = (() => {
     (nd.rsis.length ? nd.rsis : [6]).forEach(n => P(`    S["rsi${n}"] = rsi(c, ${n})`));
     nd.hh.forEach(n => P(`    S["hh${n}"] = roll_max(S["high"], ${n})`));
     nd.ll.forEach(n => P(`    S["ll${n}"] = roll_min(S["low"], ${n})`));
+    nd.bias.forEach(n => P(`    S["bias${n}"] = bias(c, ${n})`));
+    nd.wr.forEach(n => P(`    S["wr${n}"] = wr(h, l, c, ${n})`));
+    nd.cci.forEach(n => P(`    S["cci${n}"] = cci(h, l, c, ${n})`));
+    nd.lu.forEach(n => P(`    S["lu${n}"] = limit_up_count(S["chg"], ${n})`));
     P('    S["macd_dif"], S["macd_dea"], S["macd_hist"] = macd(c)');
     P('    S["kdj_k"], S["kdj_d"], S["kdj_j"] = kdj(h, l, c)');
     P('    S["boll_mid"], S["boll_up"], S["boll_dn"] = boll(c)');
@@ -1834,7 +1952,8 @@ const Codegen = (() => {
     P('            })');
     P('            pos_of.pop(code, None)');
     P('        pending_sell = []');
-    P('        for code in pending_buy:');
+    P('        # 候选多于剩余仓位时按信号日成交额从大到小优先（流动性优先，撮合更现实）');
+    P('        for _amt, code in sorted(pending_buy, reverse=True):');
     P('            if len(pos_of) >= p["max_hold"] or code in pos_of: continue');
     P('            S = by_code[code]; i = date_pos[code].get(day)');
     P('            if i is None or not tradable(S, i): continue');
@@ -1858,8 +1977,8 @@ const Codegen = (() => {
     P('                if (i - pos["i"]) >= p["min_bars"]:');
     P('                    sig, reason = sell_signal(S, i, pos)');
     P('                    if sig: pending_sell.append((S["code"], reason))');
-    P('            elif len(pos_of) + len(pending_buy) < p["max_hold"]:');
-    P('                if buy_signal(S, i): pending_buy.append(S["code"])');
+    P('            elif S["code"] not in pos_of:');
+    P('                if buy_signal(S, i): pending_buy.append((S["amount"][i], S["code"]))');
     P('');
     P('        # --- 3) 结算当日权益 ---');
     P('        mv = 0.0');
@@ -1932,12 +2051,23 @@ const JsEngine = (() => {
   const nn = v => v === v && v != null && isFinite(v);          // 非 NaN
   function prep(s, spec) {
     enrich(s);
-    const need = { hh: new Set(), ll: new Set(), vma: new Set([5, 10]), ma: new Set([5, 10, 20]), rsi: new Set([6, 14, 24]) };
+    const need = {
+      hh: new Set(), ll: new Set(), vma: new Set([5, 10]), ma: new Set([5, 10, 20]), rsi: new Set([6, 14, 24]),
+      bias: new Set(), wr: new Set(), cci: new Set(), lu: new Set()
+    };
     const walk = g => g.conds.forEach(c => {
       if (c.kind === 'cross') { need.ma.add(c.a.n); need.ma.add(c.b.n); }
       if (c.kind === 'breakout') (c.dir === 'up' ? need.hh : need.ll).add(c.n);
       if (c.kind === 'volSpike' || c.kind === 'volShrink') need.vma.add(c.n);
-      if (c.kind === 'cmp') for (const o of [c.a, c.b]) { if (o && o.ind === 'ma') need.ma.add(o.n); if (o && o.ind === 'rsi') need.rsi.add(o.n); }
+      if (c.kind === 'cmp') for (const o of [c.a, c.b]) {
+        if (!o) continue;
+        if (o.ind === 'ma') need.ma.add(o.n);
+        if (o.ind === 'rsi') need.rsi.add(o.n);
+        if (o.ind === 'bias') { need.bias.add(o.n); need.ma.add(o.n); }
+        if (o.ind === 'wr') need.wr.add(o.n);
+        if (o.ind === 'cci') need.cci.add(o.n);
+        if (o.ind === 'limitup') need.lu.add(o.n);
+      }
     });
     walk(spec.buy); walk(spec.sell);
     s.X = s.X || {};
@@ -1946,21 +2076,30 @@ const JsEngine = (() => {
     for (const n of need.vma) if (!s.X['vma' + n]) s.X['vma' + n] = Ind.ma(s.v, n);
     for (const n of need.hh) if (!s.X['hh' + n]) s.X['hh' + n] = Ind.rollMax(s.h, n);
     for (const n of need.ll) if (!s.X['ll' + n]) s.X['ll' + n] = Ind.rollMin(s.l, n);
+    for (const n of need.bias) if (!s.X['bias' + n]) s.X['bias' + n] = Ind.bias(s.c, n);
+    for (const n of need.wr) if (!s.X['wr' + n]) s.X['wr' + n] = Ind.wr(s.h, s.l, s.c, n);
+    for (const n of need.cci) if (!s.X['cci' + n]) s.X['cci' + n] = Ind.cci(s.h, s.l, s.c, n);
+    for (const n of need.lu) if (!s.X['lu' + n]) s.X['lu' + n] = Ind.limitUpCount(s.chg, n);
     return s;
   }
   function val(s, o, i) {
     if (o.const !== undefined) return o.const;
+    let v;
     switch (o.ind) {
-      case 'ma': return s.X['ma' + o.n] ? s.X['ma' + o.n][i] : NaN;
-      case 'rsi': return s.X['rsi' + o.n] ? s.X['rsi' + o.n][i] : NaN;
-      case 'close': return s.c[i]; case 'open': return s.o[i];
-      case 'high': return s.h[i]; case 'low': return s.l[i];
-      case 'turnover': return s.tr[i]; case 'chg': return s.chg[i]; case 'amp': return s.amp[i];
-      case 'volume': return s.v[i]; case 'amount': return s.a[i]; case 'fcap': return s.fcap[i];
-      case 'kdjK': return s.kdjv.K[i]; case 'macdDif': return s.macd.dif[i];
-      case 'bollUp': return s.bollv.up[i]; case 'bollDn': return s.bollv.dn[i]; case 'bollMid': return s.bollv.mid[i];
-      default: return NaN;
+      case 'ma': case 'rsi': case 'bias': case 'wr': case 'cci':
+        v = s.X[o.ind + o.n] ? s.X[o.ind + o.n][i] : NaN; break;
+      case 'limitup': v = s.X['lu' + o.n] ? s.X['lu' + o.n][i] : NaN; break;
+      case 'close': v = s.c[i]; break; case 'open': v = s.o[i]; break;
+      case 'high': v = s.h[i]; break; case 'low': v = s.l[i]; break;
+      case 'turnover': v = s.tr[i]; break; case 'chg': v = s.chg[i]; break; case 'amp': v = s.amp[i]; break;
+      case 'volume': v = s.v[i]; break; case 'amount': v = s.a[i]; break; case 'fcap': v = s.fcap[i]; break;
+      case 'kdjK': v = s.kdjv.K[i]; break; case 'kdjD': v = s.kdjv.D[i]; break;
+      case 'kdjJ': v = s.kdjv.J[i]; break; case 'macdDif': v = s.macd.dif[i]; break;
+      case 'bollUp': v = s.bollv.up[i]; break; case 'bollDn': v = s.bollv.dn[i]; break;
+      case 'bollMid': v = s.bollv.mid[i]; break;
+      default: v = NaN;
     }
+    return o.k ? v * o.k : v;
   }
   const cu = (a, b, i) => i > 0 && nn(a[i]) && nn(b[i]) && nn(a[i - 1]) && nn(b[i - 1]) && a[i - 1] <= b[i - 1] && a[i] > b[i];
   const cd = (a, b, i) => i > 0 && nn(a[i]) && nn(b[i]) && nn(a[i - 1]) && nn(b[i - 1]) && a[i - 1] >= b[i - 1] && a[i] < b[i];
@@ -1981,7 +2120,12 @@ const JsEngine = (() => {
       }
       case 'volSpike': { const m = s.X['vma' + c.n]; return m && nn(m[i]) && s.v[i] > m[i] * c.mult; }
       case 'volShrink': { const m = s.X['vma' + c.n]; return m && nn(m[i]) && s.v[i] < m[i] * c.mult; }
-      case 'cmp': { const a = val(s, c.a, i), b = val(s, c.b, i); if (!nn(a) || !nn(b)) return false; return c.op === '>' ? a > b : c.op === '<' ? a < b : c.op === '>=' ? a >= b : a <= b; }
+      case 'cmp': {
+        const a = val(s, c.a, i), b = val(s, c.b, i);
+        if (!nn(a) || !nn(b)) return false;
+        return c.op === '>' ? a > b : c.op === '<' ? a < b : c.op === '>=' ? a >= b
+          : c.op === '<=' ? a <= b : a === b;
+      }
       default: return false;
     }
   }
@@ -2023,7 +2167,9 @@ const JsEngine = (() => {
         posOf.delete(code);
       }
       pendSell = [];
-      for (const code of pendBuy) {
+      // 候选多于剩余仓位时按信号日成交额从大到小优先（与生成的 Python 代码一致）
+      pendBuy.sort((x, y) => y[0] - x[0] || (x[1] < y[1] ? -1 : 1));
+      for (const [, code] of pendBuy) {
         if (posOf.size >= p.maxHold || posOf.has(code)) continue;
         const s = bycode.get(code), i = dpos.get(code).get(day);
         if (i == null || !tradable(s, i)) continue;
@@ -2051,8 +2197,8 @@ const JsEngine = (() => {
             else if (spec.sell.conds.length && evalGroup(s, spec.sell, i)) { sig = true; reason = '信号'; }
             if (sig) pendSell.push([s.code, reason]);
           }
-        } else if (posOf.size + pendBuy.length < p.maxHold) {
-          if (evalGroup(s, spec.buy, i)) pendBuy.push(s.code);
+        } else if (!posOf.has(s.code)) {
+          if (evalGroup(s, spec.buy, i)) pendBuy.push([s.a[i], s.code]);
         }
       }
       let mv = 0;
@@ -2529,6 +2675,40 @@ const App = (() => {
     }
     $('#btnRun').disabled = false;
   }
+  /* 30 个常用策略清单（与 backtest_5y 中全市场 5 年回测所用的规则完全一致） */
+  const PRESETS = [
+    { id: "01", name: "双均线金叉 MA5/MA20", cat: "趋势跟随", text: "当5日均线上穿20日均线时买入；当5日均线下穿20日均线时卖出；最长持有60天。" },
+    { id: "02", name: "中期双均线 MA10/MA60", cat: "趋势跟随", text: "当10日均线上穿60日均线时买入；当10日均线下穿60日均线时卖出；最长持有120天。" },
+    { id: "03", name: "金叉+放量确认", cat: "趋势跟随", text: "当5日均线上穿20日均线并且成交量放大1.5倍时买入；当5日均线下穿20日均线或者亏损超过8%时卖出；最长持有60天。" },
+    { id: "04", name: "多头排列缩量回踩10日线", cat: "趋势跟随", text: "当5日均线大于10日均线并且10日均线大于20日均线并且回踩10日均线并且成交量低于5日均量的0.6倍时买入；当收盘价跌破10日均线或者盈利超过15%或者亏损超过5%时卖出；最长持有20天。" },
+    { id: "05", name: "站上20日线趋势跟随", cat: "趋势跟随", text: "当收盘价在20日均线之上并且5日均线大于20日均线时买入；当收盘价跌破20日均线或者亏损超过7%时卖出；最长持有40天。" },
+    { id: "06", name: "唐奇安通道20日突破", cat: "突破", text: "当收盘价突破20日新高时买入；当收盘价跌破10日新低或者亏损超过8%时卖出；最长持有60天。" },
+    { id: "07", name: "海龟55日突破", cat: "突破", text: "当收盘价突破55日新高时买入；当收盘价跌破20日新低或者亏损超过10%时卖出；最长持有120天。" },
+    { id: "08", name: "20日新高+放量突破", cat: "突破", text: "当收盘价突破20日新高并且成交量放大2倍时买入；当收盘价跌破10日均线或者盈利超过25%或者亏损超过8%时卖出；最长持有30天。" },
+    { id: "09", name: "布林上轨突破", cat: "突破", text: "当收盘价突破布林上轨并且成交量放大1.5倍时买入；当收盘价跌破布林中轨或者亏损超过8%时卖出；最长持有30天。" },
+    { id: "10", name: "三连阳+10日新高", cat: "突破", text: "当连续3天上涨并且收盘价突破10日新高时买入；当盈利超过12%或者亏损超过6%时卖出；最长持有15天。" },
+    { id: "11", name: "MACD金叉死叉", cat: "MACD", text: "MACD金叉时买入；MACD死叉时卖出；最长持有60天。" },
+    { id: "12", name: "MACD金叉+均线过滤", cat: "MACD", text: "MACD金叉并且收盘价在20日均线之上时买入；MACD死叉或者盈利超过15%或者亏损超过7%时卖出；最长持有40天。" },
+    { id: "13", name: "MACD零轴上金叉", cat: "MACD", text: "MACD金叉并且DIF大于0时买入；MACD死叉或者亏损超过7%时卖出；最长持有40天。" },
+    { id: "14", name: "KDJ金叉死叉", cat: "KDJ", text: "KDJ金叉时买入；KDJ死叉时卖出；最长持有30天。" },
+    { id: "15", name: "KDJ低位金叉", cat: "KDJ", text: "当KDJ金叉并且K值小于30时买入；当KDJ死叉或者盈利超过15%或者亏损超过7%时卖出；最长持有30天。" },
+    { id: "16", name: "KDJ的J值超卖", cat: "KDJ", text: "当KDJ的J值小于0时买入；当J值大于90或者盈利超过10%或者亏损超过6%时卖出；最长持有15天。" },
+    { id: "17", name: "RSI6超卖反弹", cat: "RSI", text: "当RSI6小于20时买入；当RSI6大于70或者盈利超过12%或者亏损超过6%时卖出；最长持有20天。" },
+    { id: "18", name: "RSI14强弱分界突破", cat: "RSI", text: "当RSI14大于55并且收盘价在20日均线之上时买入；当RSI14小于45或者亏损超过7%时卖出；最长持有30天。" },
+    { id: "19", name: "BIAS+WR共振抄底", cat: "均值回归", text: "当BIAS20小于-8并且WR14大于90时买入；当BIAS20大于8或者WR14小于10或者亏损超过8%时卖出；最长持有20天。" },
+    { id: "20", name: "布林下轨反弹", cat: "均值回归", text: "当收盘价跌破布林下轨时买入；当收盘价大于布林中轨或者亏损超过8%时卖出；最长持有20天。" },
+    { id: "21", name: "四连阴+RSI超卖", cat: "均值回归", text: "当连续4天下跌并且RSI6小于25时买入；当盈利超过8%或者亏损超过5%时卖出；最长持有10天。" },
+    { id: "22", name: "CCI超卖反弹", cat: "均值回归", text: "当CCI14小于-100时买入；当CCI14大于100或者亏损超过7%时卖出；最长持有20天。" },
+    { id: "23", name: "单日暴跌反弹", cat: "均值回归", text: "当跌幅超过7%并且收盘价在20日均线之上时买入；当盈利超过6%或者亏损超过5%时卖出；最长持有8天。" },
+    { id: "24", name: "量价齐升", cat: "量价", text: "当涨幅大于3%并且成交量放大2倍并且收盘价在20日均线之上时买入；当盈利超过10%或者亏损超过6%时卖出；最长持有15天。" },
+    { id: "25", name: "N字涨停战法", cat: "量价", text: "当近5个交易日只有1个涨停并且BIAS5小于-3并且成交量低于5日均量的0.8倍时买入；当盈利超过10%或者亏损超过6%时卖出；最长持有10天。" },
+    { id: "26", name: "涨停次日跟进", cat: "量价", text: "当近1个交易日只有1个涨停并且换手率大于5%时买入；当盈利超过8%或者亏损超过5%时卖出；最长持有5天。" },
+    { id: "27", name: "换手率突增", cat: "量价", text: "当换手率大于8%并且涨幅大于5%时买入；当盈利超过10%或者亏损超过6%时卖出；最长持有10天。" },
+    { id: "28", name: "低换手率+趋势向上", cat: "量价", text: "当换手率小于1%并且收盘价在20日均线之上并且5日均线大于20日均线时买入；当收盘价跌破20日均线或者亏损超过7%时卖出；最长持有40天。" },
+    { id: "29", name: "缩量回踩20日线", cat: "量价", text: "当5日均线大于20日均线并且回踩20日均线并且成交量低于5日均量的0.7倍时买入；当盈利超过12%或者亏损超过6%时卖出；最长持有20天。" },
+    { id: "30", name: "30日新高+MACD共振", cat: "多指标共振", text: "当收盘价突破30日新高并且MACD金叉并且成交量放大1.5倍时买入；当MACD死叉或者亏损超过8%时卖出；最长持有45天。" }
+  ];
+
   /* ---------- 事件绑定 ---------- */
   const EG = {
     ma: '当5日均线上穿20日均线并且换手率大于1.5%时买入；当5日均线下穿20日均线或者盈利超过20%或者亏损超过8%时卖出；最长持有60天。',
@@ -2623,6 +2803,15 @@ const App = (() => {
     });
     // 策略
     $$('[data-eg]').forEach(p => p.onclick = () => { $('#stratText').value = EG[p.dataset.eg]; genCode(); });
+    const sp = $('#selPreset');
+    sp.innerHTML = '<option value="">— 选择一个常用策略 —</option>' +
+      PRESETS.map((x, i) => `<option value="${i}">${x.id} ${esc(x.name)}（${esc(x.cat)}）</option>`).join('');
+    sp.onchange = () => {
+      const x = PRESETS[+sp.value];
+      if (!x) return;
+      $('#stratText').value = x.text;
+      genCode();
+    };
     $('#btnGen').onclick = genCode;
     $('#btnCopy').onclick = () => { navigator.clipboard.writeText($('#codeBox').value); $('#genHint').textContent = '代码已复制'; };
     $('#btnDlPy').onclick = () => download('strategy_backtest.py', $('#codeBox').value, 'text/x-python');

@@ -1,0 +1,65 @@
+{
+  "id": "30",
+  "name": "30日新高+MACD共振",
+  "cat": "多指标共振",
+  "src": "多策略共振（突破+MACD+量能）",
+  "text": "当收盘价突破30日新高并且MACD金叉并且成交量放大1.5倍时买入；当MACD死叉或者亏损超过8%时卖出；最长持有45天。",
+  "buy_op": "and",
+  "sell_op": "or",
+  "buy": [
+    "MACD 金叉",
+    "创 30 日新高",
+    "成交量 > 5日均量 × 1.5"
+  ],
+  "sell": [
+    "MACD 死叉"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0.08,
+    "maxHold": 45,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/30_30日新高+MACD共振.py",
+  "py_lines": 322,
+  "spec": {
+    "name": "当收盘价突破30日新高并且MACD金叉并且成交量放大1.5倍时买入；当MACD死",
+    "text": "当收盘价突破30日新高并且MACD金叉并且成交量放大1.5倍时买入；当MACD死叉或者亏损超过8%时卖出；最长持有45天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "macdCross",
+          "dir": "up"
+        },
+        {
+          "kind": "breakout",
+          "n": 30,
+          "dir": "up"
+        },
+        {
+          "kind": "volSpike",
+          "mult": 1.5,
+          "n": 5
+        }
+      ]
+    },
+    "sell": {
+      "op": "or",
+      "conds": [
+        {
+          "kind": "macdCross",
+          "dir": "down"
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0.08,
+      "maxHold": 45,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

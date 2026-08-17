@@ -1,0 +1,53 @@
+{
+  "id": "11",
+  "name": "MACD金叉死叉",
+  "cat": "MACD",
+  "src": "MACD 金死叉策略（DIF 上穿 DEA）",
+  "text": "MACD金叉时买入；MACD死叉时卖出；最长持有60天。",
+  "buy_op": "and",
+  "sell_op": "and",
+  "buy": [
+    "MACD 金叉"
+  ],
+  "sell": [
+    "MACD 死叉"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0,
+    "maxHold": 60,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/11_MACD金叉死叉.py",
+  "py_lines": 317,
+  "spec": {
+    "name": "MACD金叉时买入；MACD死叉时卖出；最长持有60天。",
+    "text": "MACD金叉时买入；MACD死叉时卖出；最长持有60天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "macdCross",
+          "dir": "up"
+        }
+      ]
+    },
+    "sell": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "macdCross",
+          "dir": "down"
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0,
+      "maxHold": 60,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

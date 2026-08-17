@@ -1,0 +1,69 @@
+{
+  "id": "02",
+  "name": "中期双均线 MA10/MA60",
+  "cat": "趋势跟随",
+  "src": "JoinQuant / 掘金量化 双均线策略（长周期参数）",
+  "text": "当10日均线上穿60日均线时买入；当10日均线下穿60日均线时卖出；最长持有120天。",
+  "buy_op": "and",
+  "sell_op": "and",
+  "buy": [
+    "MA10 上穿(金叉) MA60"
+  ],
+  "sell": [
+    "MA10 下穿(死叉) MA60"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0,
+    "maxHold": 120,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/02_中期双均线MA10MA60.py",
+  "py_lines": 318,
+  "spec": {
+    "name": "当10日均线上穿60日均线时买入；当10日均线下穿60日均线时卖出；最长持有12",
+    "text": "当10日均线上穿60日均线时买入；当10日均线下穿60日均线时卖出；最长持有120天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cross",
+          "a": {
+            "ind": "ma",
+            "n": 10
+          },
+          "b": {
+            "ind": "ma",
+            "n": 60
+          },
+          "dir": "up"
+        }
+      ]
+    },
+    "sell": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cross",
+          "a": {
+            "ind": "ma",
+            "n": 10
+          },
+          "b": {
+            "ind": "ma",
+            "n": 60
+          },
+          "dir": "down"
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0,
+      "maxHold": 120,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

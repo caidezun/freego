@@ -1,0 +1,65 @@
+{
+  "id": "16",
+  "name": "KDJ的J值超卖",
+  "cat": "KDJ",
+  "src": "J 值为负视为极端超卖",
+  "text": "当KDJ的J值小于0时买入；当J值大于90或者盈利超过10%或者亏损超过6%时卖出；最长持有15天。",
+  "buy_op": "and",
+  "sell_op": "or",
+  "buy": [
+    "KDJ-J < 0"
+  ],
+  "sell": [
+    "KDJ-J > 90"
+  ],
+  "risk": {
+    "takeProfit": 0.1,
+    "stopLoss": 0.06,
+    "maxHold": 15,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/16_KDJ的J值超卖.py",
+  "py_lines": 317,
+  "spec": {
+    "name": "当KDJ的J值小于0时买入；当J值大于90或者盈利超过10%或者亏损超过6%时卖",
+    "text": "当KDJ的J值小于0时买入；当J值大于90或者盈利超过10%或者亏损超过6%时卖出；最长持有15天。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "kdjJ"
+          },
+          "op": "<",
+          "b": {
+            "const": 0
+          }
+        }
+      ]
+    },
+    "sell": {
+      "op": "or",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "kdjJ"
+          },
+          "op": ">",
+          "b": {
+            "const": 90
+          }
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0.1,
+      "stopLoss": 0.06,
+      "maxHold": 15,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}
