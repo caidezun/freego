@@ -1,0 +1,67 @@
+{
+  "id": "32",
+  "name": "三连板后持有到开板",
+  "cat": "打板",
+  "src": "用户指定：连续三个涨停，第四个交易日起以开盘价尝试买入；买入后第二天起收盘不涨停就卖，涨停则继续持有",
+  "text": "当近3个交易日有3个涨停时买入；当收盘不涨停时卖出。",
+  "buy_op": "and",
+  "sell_op": "and",
+  "buy": [
+    "近3日涨停次数 == 3"
+  ],
+  "sell": [
+    "近1日涨停次数 == 0"
+  ],
+  "risk": {
+    "takeProfit": 0,
+    "stopLoss": 0,
+    "maxHold": 0,
+    "minHold": 1
+  },
+  "warns": [],
+  "py_file": "strategies/32_三连板后持有到开板.py",
+  "py_lines": 330,
+  "spec": {
+    "name": "当近3个交易日有3个涨停时买入；当收盘不涨停时卖出。",
+    "text": "当近3个交易日有3个涨停时买入；当收盘不涨停时卖出。",
+    "buy": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "limitup",
+            "n": 3
+          },
+          "op": "==",
+          "b": {
+            "const": 3
+          }
+        }
+      ]
+    },
+    "sell": {
+      "op": "and",
+      "conds": [
+        {
+          "kind": "cmp",
+          "a": {
+            "ind": "limitup",
+            "n": 1
+          },
+          "op": "==",
+          "b": {
+            "const": 0
+          }
+        }
+      ]
+    },
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0,
+      "maxHold": 0,
+      "minHold": 1
+    },
+    "warns": []
+  }
+}

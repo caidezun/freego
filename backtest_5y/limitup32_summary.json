@@ -1,0 +1,190 @@
+{
+  "rules": {
+    "id": "32",
+    "name": "三连板后持有到开板",
+    "cat": "打板",
+    "src": "用户指定：连续三个涨停，第四个交易日起以开盘价尝试买入；买入后第二天起收盘不涨停就卖，涨停则继续持有",
+    "text": "当近3个交易日有3个涨停时买入；当收盘不涨停时卖出。",
+    "buy_op": "and",
+    "sell_op": "and",
+    "buy": [
+      "近3日涨停次数 == 3"
+    ],
+    "sell": [
+      "近1日涨停次数 == 0"
+    ],
+    "risk": {
+      "takeProfit": 0,
+      "stopLoss": 0,
+      "maxHold": 0,
+      "minHold": 1
+    },
+    "warns": [],
+    "py_file": "strategies/32_三连板后持有到开板.py",
+    "py_lines": 330,
+    "spec": {
+      "name": "当近3个交易日有3个涨停时买入；当收盘不涨停时卖出。",
+      "text": "当近3个交易日有3个涨停时买入；当收盘不涨停时卖出。",
+      "buy": {
+        "op": "and",
+        "conds": [
+          {
+            "kind": "cmp",
+            "a": {
+              "ind": "limitup",
+              "n": 3
+            },
+            "op": "==",
+            "b": {
+              "const": 3
+            }
+          }
+        ]
+      },
+      "sell": {
+        "op": "and",
+        "conds": [
+          {
+            "kind": "cmp",
+            "a": {
+              "ind": "limitup",
+              "n": 1
+            },
+            "op": "==",
+            "b": {
+              "const": 0
+            }
+          }
+        ]
+      },
+      "risk": {
+        "takeProfit": 0,
+        "stopLoss": 0,
+        "maxHold": 0,
+        "minHold": 1
+      },
+      "warns": []
+    }
+  },
+  "signals": 6562,
+  "buyable": 5504,
+  "unbuyable": 1051,
+  "independent": 3335,
+  "variants": {
+    "A 只在信号次日试一次，买不到作罢": {
+      "trades": 3304,
+      "wins": 1024,
+      "losses": 2280,
+      "win_rate": 0.3099273607748184,
+      "geo_ret": -0.057446201468137593,
+      "turns_per_year": 98.92943919499326,
+      "annual_single": -0.9971284153051074,
+      "avg_ret": -0.04597138468523002,
+      "median_ret": -0.0670665,
+      "avg_win": 0.1256444296875,
+      "avg_loss": -0.12304796096491229,
+      "profit_factor": 0.45859987036647964,
+      "expectancy": -0.04597138468523002,
+      "total_return": -0.999999848639061,
+      "annual_return": -0.9577462064150407,
+      "max_drawdown": 0.9999998809733271,
+      "sharpe": -5.513004978434694,
+      "avg_bars": 2.4664043583535107,
+      "avg_positions": 9.457473162675475,
+      "best": 1.417104,
+      "worst": -0.555238,
+      "stocks_traded": 1799,
+      "missed_signals": 839
+    },
+    "B 买不到就顺延，最多等 5 天": {
+      "trades": 3312,
+      "wins": 1024,
+      "losses": 2288,
+      "win_rate": 0.30917874396135264,
+      "geo_ret": -0.0574940092828734,
+      "turns_per_year": 98.97464788732395,
+      "annual_single": -0.9971504271409322,
+      "avg_ret": -0.04604365247584541,
+      "median_ret": -0.0670665,
+      "avg_win": 0.1256444296875,
+      "avg_loss": -0.12288307386363637,
+      "profit_factor": 0.45760958169367844,
+      "expectancy": -0.04604365247584541,
+      "total_return": -0.9999998468464928,
+      "annual_return": -0.9576458536355937,
+      "max_drawdown": 0.9999998795636936,
+      "sharpe": -5.522499786322984,
+      "avg_bars": 2.4652777777777777,
+      "avg_positions": 9.477291494632535,
+      "best": 1.417104,
+      "worst": -0.555238,
+      "stocks_traded": 1801,
+      "missed_signals": 45
+    }
+  },
+  "close_exit": {
+    "n": 3300,
+    "win": 0.39606060606060606,
+    "mean": -0.008796716286934191,
+    "median": -0.029682000681233445
+  },
+  "open_exit_event": {
+    "n": 3300,
+    "win": 0.32303030303030306,
+    "mean": -0.0383939756498362,
+    "median": -0.06241626766979641
+  },
+  "vs31": {
+    "trades": 3188,
+    "wins": 687,
+    "losses": 2501,
+    "win_rate": 0.21549560853199498,
+    "geo_ret": -0.09254343368355876,
+    "turns_per_year": 34.9542554147569,
+    "annual_single": -0.9664390765262904,
+    "avg_ret": -0.07409585037641153,
+    "median_ret": -0.122631,
+    "avg_win": 0.21704068267831148,
+    "avg_loss": -0.15406818072770892,
+    "profit_factor": 0.3869646006436341,
+    "expectancy": -0.07409585037641153,
+    "total_return": -0.9999925536072948,
+    "annual_return": -0.9073667339949582,
+    "max_drawdown": 0.9999946460785385,
+    "sharpe": -5.245893208284105,
+    "avg_bars": 6.980552070263488,
+    "avg_positions": 21.009083402146985,
+    "best": 2.560579,
+    "worst": -0.778222,
+    "stocks_traded": 1799,
+    "missed_signals": 830
+  },
+  "portfolio": {
+    "trades": 904,
+    "wins": 278,
+    "losses": 626,
+    "win_rate": 0.3075221238938053,
+    "total_return": -0.999990678,
+    "annual_return": -0.903077496293448,
+    "max_drawdown": 0.9999913083145127,
+    "sharpe": -2.6678504079154055,
+    "profit_factor": 0.5802436027285199,
+    "avg_ret": -0.04074301659292036,
+    "avg_win": 0.14335555395683455,
+    "avg_loss": -0.12249925079872205,
+    "avg_bars": 2.46570796460177,
+    "best": 1.417051,
+    "worst": -0.629253,
+    "final_equity": 93.22,
+    "bars_traded": 1211,
+    "total_pnl": -9999906.62
+  },
+  "benchmark": {
+    "stocks": 5340,
+    "equal_weight_mean": 0.42412983953246547,
+    "median": 0.03827517252617674,
+    "positive_ratio": 0.5262172284644194
+  },
+  "buy_day_still_lu": 1349,
+  "extra_lu_mean": 0.7176150121065376
+}
