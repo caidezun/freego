@@ -10,6 +10,7 @@
 - [`limitup3_report.md`](limitup3_report.md)——三连板后回踩10日线（用户指定原策略）
 - [`limitup32_report.md`](limitup32_report.md)——三连板后持有到开板（涨停继续拿、收盘不涨停就卖）
 - [`limitup_optimize_report.md`](limitup_optimize_report.md)——连板票多维度优化（市值/换手/成交额/行业/大盘、追板 vs 回调、S4 过拟合警示、S12 大样本改善）
+- [`overnight_report.md`](overnight_report.md)——隔夜持股法（尾盘买、次日开盘卖）网上方案调研与全市场回测
 
 ## 数据
 
