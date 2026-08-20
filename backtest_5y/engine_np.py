@@ -368,6 +368,19 @@ def cond_mask(ind, c):
             m &= step & ~np.isnan(d)
             cur = prv
         return m
+    if k == "yinThenYang":
+        # 前 n 日收阴（收盘<开盘）+ 当日收阳；与「连续 n 天下跌」不是同一件事
+        o, cl = ind.get("open"), ind.get("close")
+        n = int(c["n"])
+        with np.errstate(invalid="ignore"):
+            yang = (cl > o) & np.isfinite(cl) & np.isfinite(o)
+            yin = (cl < o) & np.isfinite(cl) & np.isfinite(o)
+        m = yang.copy()
+        for s in range(1, n + 1):
+            prev = np.zeros(yin.shape, dtype=bool)
+            prev[:, s:] = yin[:, :-s]
+            m &= prev
+        return m
     if k in ("volSpike", "volShrink"):
         v, m0 = ind.get("volume"), ind.get("vma" + str(c["n"]))
         with np.errstate(invalid="ignore"):
@@ -555,18 +568,25 @@ def backtest_traced(pnl, ind, spec, start, end, params):
 
 
 # ─────────────────── 信号级等权回测（不受仓位/现金约束） ───────────────────
-def signal_backtest(pnl, ind, spec, start, end, params, universe=None):
+def signal_backtest(pnl, ind, spec, start, end, params, universe=None, buy_m=None, sell_m=None):
     """把策略的每一个买入信号都成交，等权、无持仓数量上限，用来衡量策略本身的胜率与单笔收益。
 
     与资金约束版共用同一套信号与退出规则（收盘信号 → 次日开盘成交、T+1、止盈/止损/
     到期/信号退出、一字板不成交），区别只是不做仓位与现金竞争，因此不受「候选多于
     仓位时先挑谁」这一人为规则的影响。同时按「当日所有在持仓位等权」合成一条日收益
     曲线，用于计算年化、回撤与夏普。
+    可选 buy_m / sell_m：直接传入 [N×L] 布尔掩码（会复制，不修改调用方）。
     """
     f = pnl.cf
     shape = f["close"].shape
-    buy_m = group_mask(ind, spec["buy"], shape)
-    sell_m = group_mask(ind, spec["sell"], shape)
+    if buy_m is None:
+        buy_m = group_mask(ind, spec["buy"], shape)
+    else:
+        buy_m = np.asarray(buy_m, dtype=bool).copy()
+    if sell_m is None:
+        sell_m = group_mask(ind, spec["sell"], shape)
+    else:
+        sell_m = np.asarray(sell_m, dtype=bool).copy()
     too_short = pnl.n_bars < 30
     buy_m[too_short] = False
     sell_m[too_short] = False

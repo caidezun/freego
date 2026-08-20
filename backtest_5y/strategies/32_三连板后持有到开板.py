@@ -156,6 +156,14 @@ def streak(close, i, n, up=True):
         if (d <= 0) if up else (d >= 0): return False
     return True
 
+def yin_then_yang(open_, close, i, n):
+    """前 n 日收阴（收盘<开盘），当日收阳（收盘>开盘）"""
+    if i < n: return False
+    if not (close[i] > open_[i]): return False
+    for k in range(1, n + 1):
+        if not (close[i - k] < open_[i - k]): return False
+    return True
+
 def ok(v):
     return v == v          # NaN 检查（NaN != NaN）
 

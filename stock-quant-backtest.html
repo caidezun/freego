@@ -1579,8 +1579,14 @@ const Strategy = (() => {
       add({ kind: 'volSpike', mult: +m[1], n: 5 });
     else if (/放量|量能放大|成交量放大/.test(t)) add({ kind: 'volSpike', mult: 2, n: 5 });
     else if (/缩量/.test(t)) add({ kind: 'volShrink', mult: .7, n: 5 });
+    // 九空一多 / 连续 N 根阴线后收阳：前 N 日收阴 + 当日收阳（不要当成「连续 N 天下跌」）
+    let yinYangN = null;
+    if (/九空一多|九阴一阳/.test(t)) yinYangN = 9;
+    if ((m = /连续\s*([0-9]+)\s*[天日根]?\s*(?:阴线|收阴)后(?:出现|收出?|出)?(?:一根)?(?:阳线|收阳)/.exec(t)))
+      yinYangN = +m[1];
+    if (yinYangN != null) add({ kind: 'yinThenYang', n: yinYangN });
     // 连续 N 天涨跌
-    if ((m = /连续\s*([0-9]+)\s*[天日根]?\s*(上涨|阳线|收阳|下跌|阴线|收阴)/.exec(t)))
+    if (yinYangN == null && (m = /连续\s*([0-9]+)\s*[天日根]?\s*(上涨|阳线|收阳|下跌|阴线|收阴)/.exec(t)))
       add({ kind: 'streak', n: +m[1], dir: /涨|阳/.test(m[2]) ? 'up' : 'down' });
     // 市值
     if ((m = new RegExp('(?:流通)?市值\\s*(?:' + GT + '|' + LT + ')\\s*' + NUM + '\\s*(万亿|亿)').exec(t))) {
@@ -1646,6 +1652,7 @@ const Strategy = (() => {
       case 'kdjCross': return `KDJ ${c.dir === 'up' ? '金叉' : '死叉'}`;
       case 'breakout': return `${c.dir === 'up' ? `创 ${c.n} 日新高` : `创 ${c.n} 日新低`}`;
       case 'streak': return `连续 ${c.n} 天${c.dir === 'up' ? '上涨' : '下跌'}`;
+      case 'yinThenYang': return `连续 ${c.n} 天阴线后收阳`;
       case 'volSpike': return `成交量 > ${c.n}日均量 × ${c.mult}`;
       case 'volShrink': return `成交量 < ${c.n}日均量 × ${c.mult}`;
       case 'cmp': return `${opName(c.a)} ${c.op} ${opName(c.b)}`;
@@ -1684,6 +1691,7 @@ const Codegen = (() => {
         ? `ok(S["hh${c.n}"][i - 1]) and S["close"][i] > S["hh${c.n}"][i - 1]`
         : `ok(S["ll${c.n}"][i - 1]) and S["close"][i] < S["ll${c.n}"][i - 1]`;
       case 'streak': return `streak(S["close"], i, ${c.n}, ${c.dir === 'up' ? 'True' : 'False'})`;
+      case 'yinThenYang': return `yin_then_yang(S["open"], S["close"], i, ${c.n})`;
       case 'volSpike': return `ok(S["vma${c.n}"][i]) and S["volume"][i] > S["vma${c.n}"][i] * ${c.mult}`;
       case 'volShrink': return `ok(S["vma${c.n}"][i]) and S["volume"][i] < S["vma${c.n}"][i] * ${c.mult}`;
       case 'cmp': {
@@ -1888,6 +1896,14 @@ const Codegen = (() => {
     P('    for k in range(n):');
     P('        d = close[i-k] - close[i-k-1]');
     P('        if (d <= 0) if up else (d >= 0): return False');
+    P('    return True');
+    P('');
+    P('def yin_then_yang(open_, close, i, n):');
+    P('    """前 n 日收阴（收盘<开盘），当日收阳（收盘>开盘）"""');
+    P('    if i < n: return False');
+    P('    if not (close[i] > open_[i]): return False');
+    P('    for k in range(1, n + 1):');
+    P('        if not (close[i - k] < open_[i - k]): return False');
     P('    return True');
     P('');
     P('def ok(v):');
@@ -2143,6 +2159,11 @@ const JsEngine = (() => {
       case 'streak': {
         if (i < c.n) return false;
         for (let k = 0; k < c.n; k++) { const d = s.c[i - k] - s.c[i - k - 1]; if (c.dir === 'up' ? d <= 0 : d >= 0) return false; }
+        return true;
+      }
+      case 'yinThenYang': {
+        if (i < c.n || !(s.c[i] > s.o[i])) return false;
+        for (let k = 1; k <= c.n; k++) if (!(s.c[i - k] < s.o[i - k])) return false;
         return true;
       }
       case 'volSpike': { const m = s.X['vma' + c.n]; return m && nn(m[i]) && s.v[i] > m[i] * c.mult; }
@@ -2702,7 +2723,7 @@ const App = (() => {
     }
     $('#btnRun').disabled = false;
   }
-  /* 30 个常用策略 + 打板专项 31/32（01–30 与 backtest_5y 全市场 5 年回测规则一致） */
+  /* 30 个常用策略 + 打板专项 31/32 + 九空一多 33（01–30 与 backtest_5y 全市场 5 年回测规则一致） */
   const PRESETS = [
     { id: "01", name: "双均线金叉 MA5/MA20", cat: "趋势跟随", text: "当5日均线上穿20日均线时买入；当5日均线下穿20日均线时卖出；最长持有60天。" },
     { id: "02", name: "中期双均线 MA10/MA60", cat: "趋势跟随", text: "当10日均线上穿60日均线时买入；当10日均线下穿60日均线时卖出；最长持有120天。" },
@@ -2735,7 +2756,8 @@ const App = (() => {
     { id: "29", name: "缩量回踩20日线", cat: "量价", text: "当5日均线大于20日均线并且回踩20日均线并且成交量低于5日均量的0.7倍时买入；当盈利超过12%或者亏损超过6%时卖出；最长持有20天。" },
     { id: "30", name: "30日新高+MACD共振", cat: "多指标共振", text: "当收盘价突破30日新高并且MACD金叉并且成交量放大1.5倍时买入；当MACD死叉或者亏损超过8%时卖出；最长持有45天。" },
     { id: "31", name: "三连板后回踩10日线", cat: "打板（全市场已证伪）", text: "当近3个交易日有3个涨停时买入；当收盘价跌破10日均线时卖出。" },
-    { id: "32", name: "三连板后持有到开板", cat: "打板", text: "当近3个交易日有3个涨停时买入；当收盘不涨停时卖出。" }
+    { id: "32", name: "三连板后持有到开板", cat: "打板", text: "当近3个交易日有3个涨停时买入；当收盘不涨停时卖出。" },
+    { id: "33", name: "九空一多", cat: "均值回归", text: "当连续9天阴线后出现阳线时买入；当盈利超过8%或者亏损超过5%时卖出；最长持有10天。" }
   ];
 
   /* ---------- 事件绑定 ---------- */

@@ -31,7 +31,7 @@
       },
       "warns": [],
       "py_file": "strategies/31_三连板后回踩10日线.py",
-      "py_lines": 329
+      "py_lines": 337
     },
     {
       "id": "32",
@@ -55,7 +55,29 @@
       },
       "warns": [],
       "py_file": "strategies/32_三连板后持有到开板.py",
-      "py_lines": 330
+      "py_lines": 338
+    },
+    {
+      "id": "33",
+      "name": "九空一多",
+      "cat": "均值回归",
+      "src": "用户指定：九空一多。公开资料无统一公式；主口径取字面「九连阴后出一阳」（前9日收阴+当日收阳）。对照见 jiukong_report.md",
+      "text": "当连续9天阴线后出现阳线时买入；当盈利超过8%或者亏损超过5%时卖出；最长持有10天。",
+      "buy_op": "and",
+      "sell_op": "and",
+      "buy": [
+        "连续 9 天阴线后收阳"
+      ],
+      "sell": [],
+      "risk": {
+        "takeProfit": 0.08,
+        "stopLoss": 0.05,
+        "maxHold": 10,
+        "minHold": 1
+      },
+      "warns": [],
+      "py_file": "strategies/33_九空一多.py",
+      "py_lines": 333
     }
   ]
 }

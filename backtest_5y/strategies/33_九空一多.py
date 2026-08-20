@@ -3,14 +3,14 @@
 A股量化回测脚本（由页面「策略生成」自动产出，可自由修改后重新回测）
 
 策略描述：
-  当近3个交易日有3个涨停时买入；当收盘价跌破10日均线时卖出。
+  当连续9天阴线后出现阳线时买入；当盈利超过8%或者亏损超过5%时卖出；最长持有10天。
 
 已识别的规则：
   买入（全部满足）：
-    - 近3日涨停次数 == 3
+    - 连续 9 天阴线后收阳
   卖出（全部满足）：
-    - 收盘价 < MA10
-  风控：止盈 关 · 止损 关 · 最长持有 不限
+    - （无信号卖出条件，仅靠风控退出）
+  风控：止盈 8.0% · 止损 5.0% · 最长持有 10 个交易日
 
 数据来源：页面第 1 步下载到浏览器 IndexedDB 的东方财富日线数据，
 字段与本脚本 load_dataset() 返回结构一致；也可用导出的 CSV 在本地直接运行。
@@ -27,9 +27,9 @@ PARAMS = {
     "max_hold":    20,             # 同时最多持仓只数
     "fee_permil":  0.5,            # 双边手续费 ‰（单笔最低 5 元）
     "slip_permil": 0.5,            # 滑点 ‰
-    "take_profit": 0,              # 止盈，0=关闭
-    "stop_loss":   0,              # 止损，0=关闭
-    "max_bars":    0,              # 最长持有交易日，0=不限
+    "take_profit": 0.08,           # 止盈，0=关闭
+    "stop_loss":   0.05,           # 止损，0=关闭
+    "max_bars":    10,             # 最长持有交易日，0=不限
     "min_bars":    1,              # T+1：买入次日起才能卖出
 }
 
@@ -176,8 +176,6 @@ def prepare(S):
     for n in (5, 10):
         S["vma%d" % n] = sma(v, n)
     S["rsi6"] = rsi(c, 6)
-    _lp = limit_pct(S["code"])
-    S["lu3"] = limit_up_count(S["chg"], h, c, 3, _lp)
     S["macd_dif"], S["macd_dea"], S["macd_hist"] = macd(c)
     S["kdj_k"], S["kdj_d"], S["kdj_j"] = kdj(h, l, c)
     S["boll_mid"], S["boll_up"], S["boll_dn"] = boll(c)
@@ -189,7 +187,7 @@ def prepare(S):
 # ============ 策略信号（由中文策略翻译而来）============
 def buy_signal(S, i):
     """第 i 根K线收盘后是否发出买入信号（次日开盘成交）"""
-    return ((ok(S["lu3"][i]) and S["lu3"][i] == 3))
+    return ((yin_then_yang(S["open"], S["close"], i, 9)))
 
 def sell_signal(S, i, pos):
     """第 i 根K线收盘后是否发出卖出信号，返回 (是否卖出, 原因)"""
@@ -198,8 +196,6 @@ def sell_signal(S, i, pos):
     if p["take_profit"] and ret >= p["take_profit"]: return True, "止盈"
     if p["stop_loss"] and ret <= -p["stop_loss"]:    return True, "止损"
     if p["max_bars"] and (i - pos["i"]) >= p["max_bars"]: return True, "到期"
-    if ((ok(S["close"][i]) and ok(S["ma10"][i]) and S["close"][i] < S["ma10"][i])):
-        return True, "信号"
     return False, ""
 
 # ============ 回测引擎（组合级，A股 T+1 / 次日开盘成交）============
