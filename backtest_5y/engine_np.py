@@ -412,11 +412,18 @@ def group_mask(ind, g, shape):
 
 
 # ────────────────────────────── 回测 ──────────────────────────────
-def backtest(pnl, ind, spec, start, end, params, trace=None, pick="amount", seed=7):
+def backtest(pnl, ind, spec, start, end, params, trace=None, pick="amount", seed=7,
+             buy_m=None, sell_m=None):
     f = pnl.cf
     shape = f["close"].shape
-    buy_m = group_mask(ind, spec["buy"], shape)
-    sell_m = group_mask(ind, spec["sell"], shape)
+    if buy_m is None:
+        buy_m = group_mask(ind, spec["buy"], shape)
+    else:
+        buy_m = np.asarray(buy_m, dtype=bool).copy()
+    if sell_m is None:
+        sell_m = group_mask(ind, spec["sell"], shape)
+    else:
+        sell_m = np.asarray(sell_m, dtype=bool).copy()
     too_short = pnl.n_bars < 30          # 生成代码里 run() 会跳过不足 30 根K线的标的
     buy_m[too_short] = False
     sell_m[too_short] = False
