@@ -19,4 +19,5 @@ export const STRATEGIES = [
 /* S12（2连板后等第一次跌破MA5再买、持有3日）需要「连板后等待」状态机，
    当前中文编译器表达不了，全市场结果见 limitup_optimize_report.md，不要用近似规则复跑。
    34 横盘>20日放量首板 T+2：横盘箱体 + 信号与成交再隔一日，编译器同样表达不了，
-   全市场结果见 sideways_lu_report.md。 */
+   全市场结果见 sideways_lu_report.md。
+   35 同一选股、首板后等第一次回踩 MA5：状态机，见 sideways_lu_ma5_report.md。 */

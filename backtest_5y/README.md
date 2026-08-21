@@ -13,6 +13,7 @@
 - [`overnight_report.md`](overnight_report.md)——隔夜持股法（尾盘买、次日开盘卖）网上方案调研与全市场回测
 - [`jiukong_report.md`](jiukong_report.md)——九空一多（九连阴后出一阳；对照连阴天数、九跌一涨、神奇九转低九）
 - [`sideways_lu_report.md`](sideways_lu_report.md)——横盘>20日放量后追首板，T+2 开盘买、跌破 MA10 卖
+- [`sideways_lu_ma5_report.md`](sideways_lu_ma5_report.md)——同上选股，第一个涨停后第一次回踩 MA5 再买、跌破 MA10 卖
 
 ## 数据
 
